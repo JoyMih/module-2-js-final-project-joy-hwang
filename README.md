@@ -1,12 +1,15 @@
+# ChessGame
+
+An online playable chess game. This project is a learning exercise and is still in production.
+This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.0.
+
+# General Links
+
 Dev Log for this Project link is here: https://docs.google.com/document/d/1xrOvZnc20W_n_anmt-3pqnuhiP9zwcM7hOnlg0Sbs-g/edit?usp=sharing
 
 Prospective Work Scheduling/Gantt Chart link is here: https://lucid.app/lucidchart/706b8df3-3a38-4606-8cea-319ebae3230e/edit?viewport_loc=160%2C-409%2C3034%2C1320%2CuDe-dIt-NWfS&invitationId=inv_d5dcebcf-b411-454e-b414-da3d43ffc11e
 
 Code is based on Learning Tutorial Video by freeCodeCamp: https://www.youtube.com/watch?v=fJIsqZmQVZQ
-
-# ChessGame
-
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.0.
 
 ## Development server
 
