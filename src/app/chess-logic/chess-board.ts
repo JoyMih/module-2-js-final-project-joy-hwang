@@ -34,7 +34,7 @@ export class ChessBoard {
                 new Pawn(Color.Pink), new Pawn(Color.Pink), new Pawn(Color.Pink), new Pawn(Color.Pink), new Pawn(Color.Pink), new Pawn(Color.Pink), new Pawn(Color.Pink), new Pawn(Color.Pink)
             ],
             [new Rook(Color.Pink), new Knight(Color.Pink), new Bishop(Color.Pink), new Queen(Color.Pink), new King(Color.Pink), new Bishop(Color.Pink), new Knight(Color.Pink), new Rook(Color.Pink)
-            ]
+            ],
         ];
 
         // Defining the private _safeSquares property
@@ -50,7 +50,7 @@ export class ChessBoard {
             // Checking for if each square contains a piece or is just a null empty square
             // This either returns the piece on square or null
             return row.map(piece => piece instanceof Piece ? piece.FENChar : null);
-        })
+        });
     }
 
     // Create getter for the private safeSquares property
@@ -90,14 +90,15 @@ export class ChessBoard {
                     // However, if coordinates are not valid, the checks must continue still
                     if (!this.areCoordsValid(newX, newY)) continue;
 
-                    // CHecking if the piece is an instance of pawn, knight, or king
+                    // Checking if the piece is an instance of pawn, knight, or king
                     if (piece instanceof Pawn || piece instanceof Knight || piece instanceof King) {
                         const attackedPiece: Piece | null = this.chessBoard[newX][newY];
 
-                        // Checking if the player color's king piece has been attacked
-                        if (attackedPiece instanceof King && attackedPiece.color === playerColor) return true;
                         // Recall that pawns can only attack diagonally. The change in y direction is 0.
                         if (attackedPiece instanceof Pawn && dy === 0) continue;
+                        // Checking if the player color's king piece has been attacked
+                        if (attackedPiece instanceof King && attackedPiece.color === playerColor) return true;
+                    
                     }
                     else { // This case is now for pieces that are instances of bishop, rook, or queen. These pieces can move multiple squares at a time along a direction.
                         while (this.areCoordsValid(newX, newY)) {
@@ -124,14 +125,14 @@ export class ChessBoard {
         // declare newPiece that represents an empty square on the new coordinates
         const newPiece: Piece | null = this.chessBoard[newX][newY];
         // Following, checking if this new piece is a piece and is the player's color. In chess, a piece cannot be placed on a space occupied by your own color's piece.
-        if (newPiece && newPiece.color === this.playerColor) return false;
+        if (newPiece && newPiece.color === piece.color) return false;
         // Simulating what this action would look like
         this.chessBoard[prevX][prevY] = null; // The old position is emptied
         this.chessBoard[newX][newY] = piece; // This is where we next place our piece
 
 
         // Checking if the player is in check
-        const isPositionSafe: boolean = this.isInCheck(piece.color);
+        const isPositionSafe: boolean = !this.isInCheck(piece.color);
 
         // Restoring the piece's position based on if the player is safe and still not in check after their move, we must restart and restore.
         this.chessBoard[prevX][prevY] = piece; // The old position is emptied
@@ -150,7 +151,7 @@ export class ChessBoard {
                 // Declaring a variable, piece, that is either Piece or null (square with piece on it or empty square) in the [x][y] position on this chessboard.
                 const piece: Piece | null = this.chessBoard[x][y];
                 // If piece is an empty square or if the piece differs player's color, we continue
-                if (!piece || this.playerColor !== piece.color) continue;
+                if (!piece || piece.color !== this._playerColor) continue;
 
                 // Safe squares are initially an empty array
                 const pieceSafeSquares: Coords[] = [];
@@ -180,7 +181,7 @@ export class ChessBoard {
                         if ((dx === -1 || dx === 1) && dy === 0 && newPiece) continue;
 
                         // We also restrict diagonal movement if either case is true: the space is occupied by the same color piece OR that target square location is empty (i.e. there is no opponent piece to be taken in that spot)
-                        if ((dx === -1 || dx === 1) && (!newPiece || piece.color === newPiece.color)) continue;
+                        if ((dy === -1 || dy === 1) && (!newPiece || piece.color === newPiece.color)) continue;
                     }
 
                     // Checking for pawn, king, knight
@@ -208,14 +209,12 @@ export class ChessBoard {
                             newY += dy;
                         }
                     }
-                    // This delineated that if piece contains any safe squares, we must push those safe squares into the map of safe squares we are creating
-                    if (pieceSafeSquares.length) {
-                        safeSquares.set(x + "," + y, pieceSafeSquares);
-                    }
                 }
+                // This delineated that if piece contains any safe squares, we must push those safe squares into the map of safe squares we are creating
+                if (pieceSafeSquares.length) {
+                    safeSquares.set(x + "," + y, pieceSafeSquares);}
             }
         }
-
         return safeSquares;
     }
 }

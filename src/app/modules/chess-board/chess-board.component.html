@@ -1,15 +1,16 @@
 <div class="chess-board">
     <div *ngFor="let row of chessBoardView; let x = index" class="row">
         <!-- Using a global/public method for isSquareDark() created in chess-board.ts, and we are appending an Angular class to the div to implement it -->
-        <div *ngFor="let piece of row; let y = index" class="square" [ngClass]="{'dark': isSquareDark(x,y), 'light': !isSquareDark(x,y), 'selected-square': isSquareSelected(x,y)
-    
-    }"
-    (click) => "selectingPiece(x,y)">
-
-        <div [ngClass]="{'safe-square': isSquareSafeForSelectedPiece(x,y)}"></div>
+        <div *ngFor="let piece of row; let y = index" class="square" [ngClass]="{'dark': isSquareDark(x,y), 
+            'light': !isSquareDark(x,y), 
+            'selected-square': isSquareSelected(x, y)}" 
+        
+            (click)="selectingPiece(x, y)"
+        
+        >
 
             <!-- Declaring a click event for the selected piece, in which the selectingPiece() function takes two arguments -->
-            (click) = "selectingPiece(x,y)"
+            <div [ngClass]="{'safe-square': isSquareSafeForSelectedPiece(x, y)}"></div>
 
             <!-- Image tag will only exist if the piece is different from the present. Source stock is appended -->
             <img *ngIf="piece" [src]="pieceImagePaths[piece]" [alt]="piece" class="piece">
