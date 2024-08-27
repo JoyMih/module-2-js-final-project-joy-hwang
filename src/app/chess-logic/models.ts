@@ -40,4 +40,5 @@ export const pieceImagePaths: Readonly<Record<FENChar, string>> = {
     [FENChar.PinkKing]: "assets/pieces/pink-king.png"
 }
 
-// C:\Users\joysp\OneDrive\Documents\BVT-Projects\mod-2\chess-game\src\assets\pieces\pink bishop.png
+// This is the coordinate with which we check in chess-board.ts on whether or not pieces are safe
+export type SafeSquares = Map<string, Coords[]>;
