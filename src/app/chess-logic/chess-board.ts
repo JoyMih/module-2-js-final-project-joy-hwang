@@ -98,7 +98,7 @@ export class ChessBoard {
                         if (attackedPiece instanceof Pawn && dy === 0) continue;
                         // Checking if the player color's king piece has been attacked
                         if (attackedPiece instanceof King && attackedPiece.color === playerColor) return true;
-                    
+
                     }
                     else { // This case is now for pieces that are instances of bishop, rook, or queen. These pieces can move multiple squares at a time along a direction.
                         while (this.areCoordsValid(newX, newY)) {
@@ -212,9 +212,31 @@ export class ChessBoard {
                 }
                 // This delineated that if piece contains any safe squares, we must push those safe squares into the map of safe squares we are creating
                 if (pieceSafeSquares.length) {
-                    safeSquares.set(x + "," + y, pieceSafeSquares);}
+                    safeSquares.set(x + "," + y, pieceSafeSquares);
+                }
             }
         }
         return safeSquares;
+    }
+
+    public move(prevX: number, prevY: number, newX: number, newY: number): void {
+        if (!this.areCoordsValid(prevX, prevY) || !this.areCoordsValid(newX, newY)) return;
+        const piece: Piece | null = this.chessBoard[prevX][prevY];
+        if (!piece || piece.color !== this._playerColor) return;
+
+        const pieceSafeSquares: Coords[] | undefined = this._safeSquares.get(prevX + "," + prevY);
+        if (!pieceSafeSquares || !pieceSafeSquares.find(coords => coords.x === newX && coords.y === newY))
+            throw new Error("This square is NOT safe"); // If these coordinates are NOT safe, we throw an error
+
+        // If the piece is pawn, rook, or king
+        if ((piece instanceof Pawn || piece instanceof King || piece instanceof Rook) && !piece.hasMoved)
+            piece.hasMoved = true;
+
+        // After this, we must update the chessboard
+        this.chessBoard[prevX][prevY] = null;
+        this.chessBoard[newX][newY] = piece;
+
+        this._playerColor = this._playerColor === Color.White ? Color.Pink : Color.White;
+        this._safeSquares = this.findSafeSquares();
     }
 }
