@@ -94,11 +94,26 @@ export class ChessBoardComponent {
     // Destructuring the properties of the selected square
     const { x: prevX, y: prevY } = this.selectedSquare;
     this.chessBoard.move(prevX, prevY, newX, newY, null); // Calling the move function
+
+    // Calling the board updating method
+    this.updateBoard(prevX, prevY, newX, newY, this.promotedPiece);
+  }
+
+  private updateBoard(prevX: number, prevY: number, newX: number, newY: number, promotedPiece: FENChar | null): void {
     // Then update the chessboard view
     this.chessBoardView = this.chessBoard.chessBoardView;
     this.checkState = this.chessBoard.checkState;
     this.lastMove = this.chessBoard.lastMove;
     this.unmarkingPreviouslySelectedAndSafeSquares(); // Removing the previous "safe squares" marks after placing into current position
+  }
+
+  // Implementing piece promotion
+  public promotePiece(piece: FENChar): void{
+    if(!this.promotionCoords || !this.selectedSquare.piece) return;
+    this.promotedPiece = piece;
+    const { x: newX, y: newY } = this.promotionCoords;
+    const { x: prevX, y: prevY } = this.selectedSquare;
+    this.updateBoard(prevX, prevY, newX, newY, this.promotedPiece);
   }
 
   // Creating public move method
