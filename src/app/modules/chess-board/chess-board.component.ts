@@ -54,12 +54,22 @@ export class ChessBoardComponent {
     return this.checkState.isInCheck && this.checkState.x === x && this.checkState.y === y;
   }
 
+  public isSquarePromotionSquare(x: number, y: number): boolean {
+    if(!this.promotionCoords) return false;
+    return this.promotionCoords.x === x && this.promotionCoords.y === y;
+  }
+
   // Creating unmarking method, which we must use in the placingPiece function
   private unmarkingPreviouslySelectedAndSafeSquares(): void {
     this.selectedSquare = { piece: null }; // We set that no piece is selected
     this.pieceSafeSquares = []; // We empty this safe squares array again to unmark
-  }
 
+    if (this.isPromotionActive) {
+      this.isPromotionActive = false;
+      this.promotedPiece = null;
+      this.promotionCoords = null;
+    }
+  }
 
   public selectingPiece(x: number, y: number): void { // return type is void
     const piece: FENChar | null = this.chessBoardView[x][y];
@@ -85,21 +95,22 @@ export class ChessBoardComponent {
     const isPawnOnlastRank: boolean = isPawnSelected && (newX === 7 || newX === 0); // Pawn is on last rank
     const shouldOpenPromotionDialog: boolean = !this.isPromotionActive && isPawnOnlastRank;
 
-    if(shouldOpenPromotionDialog){
+    if (shouldOpenPromotionDialog) {
+      this.pieceSafeSquares = [];
       this.isPromotionActive = true;
-      this.promotionCoords = {x: newX, y: newY}; // Since Promotion is happening, we must update the coordinates
+      this.promotionCoords = { x: newX, y: newY }; // Since Promotion is happening, we must update the coordinates
       return; // We must wait for the player to choose the pawn to promote
     }
 
     // Destructuring the properties of the selected square
     const { x: prevX, y: prevY } = this.selectedSquare;
-    this.chessBoard.move(prevX, prevY, newX, newY, null); // Calling the move function
 
     // Calling the board updating method
     this.updateBoard(prevX, prevY, newX, newY, this.promotedPiece);
   }
 
   private updateBoard(prevX: number, prevY: number, newX: number, newY: number, promotedPiece: FENChar | null): void {
+    this.chessBoard.move(prevX, prevY, newX, newY, this.promotedPiece); // Calling the move function
     // Then update the chessboard view
     this.chessBoardView = this.chessBoard.chessBoardView;
     this.checkState = this.chessBoard.checkState;
@@ -108,12 +119,16 @@ export class ChessBoardComponent {
   }
 
   // Implementing piece promotion
-  public promotePiece(piece: FENChar): void{
-    if(!this.promotionCoords || !this.selectedSquare.piece) return;
+  public promotePiece(piece: FENChar): void {
+    if (!this.promotionCoords || !this.selectedSquare.piece) return;
     this.promotedPiece = piece;
     const { x: newX, y: newY } = this.promotionCoords;
     const { x: prevX, y: prevY } = this.selectedSquare;
     this.updateBoard(prevX, prevY, newX, newY, this.promotedPiece);
+  }
+
+  public closePawnPromotionDialog(): void {
+    this.unmarkingPreviouslySelectedAndSafeSquares();
   }
 
   // Creating public move method

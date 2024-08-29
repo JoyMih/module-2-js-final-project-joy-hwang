@@ -17,6 +17,12 @@ export class ChessBoard {
     private _lastMove: LastMove | undefined;
     private _checkState: CheckState = { isInCheck: false };
 
+    // We set prepare to set a condition limiting 50 moves of no-capture
+    private fiftyMoveRuleCounter: number = 0;
+
+    private _isGameOver: boolean = false;
+    private _gameOverMessage: string | undefined;
+
     constructor() {
         // Implementing the chessBOard properties in the constructor
         this.chessBoard = [
@@ -68,6 +74,14 @@ export class ChessBoard {
         return this._checkState;
     }
 
+    public get isGameOver(): boolean {
+        return this.isGameOver;
+    }
+
+    public get gameOverMessage(): string | undefined {
+        return this._gameOverMessage
+    }
+
     // The return type of this method should be a boolean
     public static isSquareDark(x: number, y: number): boolean {
         // Returning odd or even
@@ -89,6 +103,7 @@ export class ChessBoard {
             for (let y = 0; y < this.chessBoardSize; y++) {
                 // Declaring a variable, piece, that is either Piece or null (square with piece on it or empty square) in the [x][y] position on this chessboard.
                 const piece: Piece | null = this.chessBoard[x][y];
+
                 // Checking if piece variable is empty square (null), as well as the case where if there is a piece, we check the color
                 if (!piece || piece.color === playerColor) continue;
 
@@ -238,7 +253,7 @@ export class ChessBoard {
                         pieceSafeSquares.push({ x, y: 2 });
                 }
                 else if (piece instanceof Pawn && this.canCaptureEnPassant(piece, x, y))
-                    pieceSafeSquares.push({ x : x + (piece.color === Color.White ? 1 : -1), y: this._lastMove!.prevY });
+                    pieceSafeSquares.push({ x: x + (piece.color === Color.White ? 1 : -1), y: this._lastMove!.prevY });
 
                 // This delineated that if piece contains any safe squares, we must push those safe squares into the map of safe squares we are creating
                 if (pieceSafeSquares.length) {
@@ -310,17 +325,19 @@ export class ChessBoard {
             piece.hasMoved = true;
 
         const moveType = new Set<MoveType>();
-        
-        const isPieceTaken: boolean = this.chessBoard[newX][newY] !== null;
+
+        // We check if a piece was taken
+        const isPieceTaken: boolean = this.chessBoard[newX][newY] !== null; // Empty square/null would denote that a piece was taken
         if (isPieceTaken) moveType.add(MoveType.Capture);
 
-        // if (piece instanceof Pawn || isPieceTaken) this.fiftyMoveRuleCounter = 0;
-        // else this.fiftyMoveRuleCounter += 0.5;
+        // Subsequently, we impose our limitation beneath the 
+        if (piece instanceof Pawn || isPieceTaken) this.fiftyMoveRuleCounter = 0; // If the piece is a Pawn or if the piece is taken (true case), the counter is reset
+        else this.fiftyMoveRuleCounter += 0.5; // 0.5 is because each player's move is half of one whole turn.
 
         this.handlingSpecialMoves(piece, prevX, prevY, newX, newY, moveType);
 
         // After this, we must update the chessboard
-        if (promotedPieceType){
+        if (promotedPieceType) {
             this.chessBoard[newX][newY] = this.promotedPiece(promotedPieceType);
         }
         else { // If promotion does not happen, place piece at new x,y coordinates
@@ -333,6 +350,7 @@ export class ChessBoard {
         this._playerColor = this._playerColor === Color.White ? Color.Pink : Color.White;
         this.isInCheck(this._playerColor, true);
         this._safeSquares = this.findSafeSquares();
+        this._isGameOver = this.isGameFinished();
     }
 
     private handlingSpecialMoves(piece: Piece, prevX: number, prevY: number, newX: number, newY: number, moveType: Set<MoveType>): void {
@@ -363,13 +381,32 @@ export class ChessBoard {
 
     // Implementing the promotedPiece method for Piece Promotion
     private promotedPiece(promotedPieceType: FENChar): Knight | Bishop | Rook | Queen {
-        if(promotedPieceType === FENChar.WhiteKnight || promotedPieceType === FENChar.PinkKnight) 
+        if (promotedPieceType === FENChar.WhiteKnight || promotedPieceType === FENChar.PinkKnight)
             return new Knight(this._playerColor);
-        if(promotedPieceType === FENChar.WhiteBishop || promotedPieceType === FENChar.PinkBishop) 
+        if (promotedPieceType === FENChar.WhiteBishop || promotedPieceType === FENChar.PinkBishop)
             return new Bishop(this._playerColor);
-        if(promotedPieceType === FENChar.WhiteRook || promotedPieceType === FENChar.PinkRook) 
+        if (promotedPieceType === FENChar.WhiteRook || promotedPieceType === FENChar.PinkRook)
             return new Rook(this._playerColor);
-        
+
         return new Queen(this._playerColor);
+    }
+
+    private isGameFinished(): boolean {
+        if (!this._safeSquares.size) {
+            if (this._checkState.isInCheck) { // In the case of a checkmate
+                const prevPlayer: string = this._playerColor === Color.White ? "Black" : "White";
+                this._gameOverMessage = prevPlayer + " won by checkmate";
+            }
+            else this._gameOverMessage = "Stalemate"; // In the case of a stalemate
+
+            return true;
+        }
+
+        // Before ringing to false case, we must check the counter to see if 50 moves limitation has been breached
+        if (this.fiftyMoveRuleCounter === 50) {
+            this._gameOverMessage = "Draw due to rule: 50 moves have been reached without resolution";
+            return true;
+        }
+        return false; // This will ensure the game continues outside of these cases
     }
 }
