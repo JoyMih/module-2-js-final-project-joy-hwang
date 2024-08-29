@@ -27,7 +27,7 @@ export class ChessBoardComponent {
   private promotionCoords: Coords | null = null;
   private promotedPiece: FENChar | null = null;
   public promotionPieces(): FENChar[] { // An array of FENCharacters in which we can promote our player's pawn
-    return this.playerColor === Color.White ? [FENChar.WhiteKnight, FENChar.WhiteBishop, FENChar.WhiteQueen] : [FENChar.PinkBishop, FENChar.PinkKnight, FENChar.PinkQueen];
+    return this.playerColor === Color.White ? [FENChar.WhiteKnight, FENChar.WhiteBishop, FENChar.WhiteRook, FENChar.WhiteQueen] : [FENChar.PinkKnight, FENChar.PinkBishop, FENChar.PinkRook, FENChar.PinkQueen];
   };
 
   public isSquareDark(x: number, y: number): boolean {
