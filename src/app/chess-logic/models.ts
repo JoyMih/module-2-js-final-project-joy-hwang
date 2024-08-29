@@ -1,3 +1,5 @@
+import { Piece } from "./pieces/piece";
+
 export enum Color{
     White,
     Pink
@@ -42,3 +44,33 @@ export const pieceImagePaths: Readonly<Record<FENChar, string>> = {
 
 // This is the coordinate with which we check in chess-board.ts on whether or not pieces are safe
 export type SafeSquares = Map<string, Coords[]>;
+
+export enum MoveType {
+    Capture,
+    Castling,
+    Promotion,
+    Check,
+    CheckMate,
+    BasicMove
+}
+
+export type LastMove = {
+    piece: Piece;
+    prevX: number;
+    prevY: number;
+    currX: number;
+    currY: number;
+    moveType: Set<MoveType>;
+}
+
+type KingChecked = {
+    isInCheck: true;
+    x: number;
+    y: number;
+}
+
+type KingNotChecked = {
+    isInCheck: false;
+}
+
+export type CheckState = KingChecked | KingNotChecked;

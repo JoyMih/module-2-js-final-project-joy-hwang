@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ChessBoard } from '../../chess-logic/chess-board';
-import { Color, Coords, FENChar, pieceImagePaths, SafeSquares } from '../../chess-logic/models';
+import { CheckState, Color, Coords, FENChar, LastMove, pieceImagePaths, SafeSquares } from '../../chess-logic/models';
 import { SelectedSquare } from './models';
 
 @Component({
@@ -15,10 +15,20 @@ export class ChessBoardComponent {
   private chessBoard = new ChessBoard();
   public chessBoardView: (FENChar | null)[][] = this.chessBoard.chessBoardView;
   public get playerColor(): Color { return this.chessBoard.playerColor; };
-
   public get safeSquares(): SafeSquares { return this.chessBoard.safeSquares; };  // note that selectedSquare is imported from models.ts in the MODULES folder
+
   private selectedSquare: SelectedSquare = { piece: null }; // initially empty
   private pieceSafeSquares: Coords[] = []; // initially empty
+  private lastMove: LastMove | undefined = this.chessBoard.lastMove;
+  private checkState: CheckState = this.chessBoard.checkState;
+
+  // Properties for pawn promotion
+  public isPromotionActive: boolean = false; // Open promotion dialogue
+  private promotionCoords: Coords | null = null;
+  private promotedPiece: FENChar | null = null;
+  public promotionPieces(): FENChar[] { // An array of FENCharacters in which we can promote our player's pawn
+    return this.playerColor === Color.White ? [FENChar.WhiteKnight, FENChar.WhiteBishop, FENChar.WhiteQueen] : [FENChar.PinkBishop, FENChar.PinkKnight, FENChar.PinkQueen];
+  };
 
   public isSquareDark(x: number, y: number): boolean {
     return ChessBoard.isSquareDark(x, y);
@@ -34,9 +44,19 @@ export class ChessBoardComponent {
     return this.pieceSafeSquares.some(coords => coords.x === x && coords.y === y); // Check if contains matching properties
   }
 
-// Creating unmarking method, which we must use in the placingPiece function
+  public isSquareLastMove(x: number, y: number): boolean {
+    if (!this.lastMove) return false;
+    const { prevX, prevY, currX, currY } = this.lastMove;
+    return x === prevX && y === prevY || x === currX && y === currY;
+  }
+
+  public isSquareChecked(x: number, y: number): boolean {
+    return this.checkState.isInCheck && this.checkState.x === x && this.checkState.y === y;
+  }
+
+  // Creating unmarking method, which we must use in the placingPiece function
   private unmarkingPreviouslySelectedAndSafeSquares(): void {
-    this.selectedSquare = {piece: null}; // We set that no piece is selected
+    this.selectedSquare = { piece: null }; // We set that no piece is selected
     this.pieceSafeSquares = []; // We empty this safe squares array again to unmark
   }
 
@@ -45,6 +65,11 @@ export class ChessBoardComponent {
     const piece: FENChar | null = this.chessBoardView[x][y];
     if (!piece) return; // if the square is empty, return from the function
     if (this.isWrongPieceSelected(piece)) return;
+
+    const isSameSquareClicked: boolean = !!this.selectedSquare.piece && this.selectedSquare.x === x && this.selectedSquare.y === y;
+    this.unmarkingPreviouslySelectedAndSafeSquares();
+    if (isSameSquareClicked) return;
+
     // Then we must update the private properties of the selected squares and piece safe squares
     this.selectedSquare = { piece, x, y };
     this.pieceSafeSquares = this.safeSquares.get(x + "," + y) || [];
@@ -55,12 +80,24 @@ export class ChessBoardComponent {
     if (!this.selectedSquare.piece) return; // Checking if the piece is actually selected
     if (!this.isSquareSafeForSelectedPiece(newX, newY)) return; // Checking if the new coordinates are safe for the selected piece
 
+    // Promotion of Pawn is handled here
+    const isPawnSelected: boolean = this.selectedSquare.piece === FENChar.WhitePawn || this.selectedSquare.piece === FENChar.PinkPawn;
+    const isPawnOnlastRank: boolean = isPawnSelected && (newX === 7 || newX === 0); // Pawn is on last rank
+    const shouldOpenPromotionDialog: boolean = !this.isPromotionActive && isPawnOnlastRank;
+
+    if(shouldOpenPromotionDialog){
+      this.isPromotionActive = true;
+      this.promotionCoords = {x: newX, y: newY}; // Since Promotion is happening, we must update the coordinates
+      return; // We must wait for the player to choose the pawn to promote
+    }
+
     // Destructuring the properties of the selected square
     const { x: prevX, y: prevY } = this.selectedSquare;
-    this.chessBoard.move(prevX, prevY, newX, newY); // Calling the move function
+    this.chessBoard.move(prevX, prevY, newX, newY, null); // Calling the move function
     // Then update the chessboard view
     this.chessBoardView = this.chessBoard.chessBoardView;
-
+    this.checkState = this.chessBoard.checkState;
+    this.lastMove = this.chessBoard.lastMove;
     this.unmarkingPreviouslySelectedAndSafeSquares(); // Removing the previous "safe squares" marks after placing into current position
   }
 
