@@ -7,11 +7,7 @@
             'last-move': isSquareLastMove(x, y),
             'king-in-check': isSquareChecked(x, y),
             'promotion-square': isSquarePromotionSquare(x, y)
-        }" 
-        
-            (click)="move(x, y)"
-        
-        >
+        }" (click)="move(x, y)">
 
             <!-- Declaring a click event for the selected piece, in which the selectingPiece() function takes two arguments -->
             <div [ngClass]="{'safe-square': isSquareSafeForSelectedPiece(x, y)}"></div>
@@ -21,9 +17,16 @@
             <!-- Piece class only sets pixel width of each image -->
         </div>
     </div>
+
+    <!-- Display Game Over Message -->
+     <h2 *ngIf="gameOverMessage" class="game-over-message"> 
+        {{gameOverMessage}}
+     </h2>
+
     <!-- Promotion dialogue -->
     <div *ngIf="isPromotionActive" class="promotion-dialog">
-        <img *ngFor="let piece of promotionPieces()" [src]="pieceImagePaths[piece]"  (click)="promotePiece(piece)" alt="">
+        <img *ngFor="let piece of promotionPieces()" [src]="pieceImagePaths[piece]" (click)="promotePiece(piece)"
+            alt="">
         <span class="close-promotion-dialog" (click)="closePawnPromotionDialog()">
             &times;
         </span>

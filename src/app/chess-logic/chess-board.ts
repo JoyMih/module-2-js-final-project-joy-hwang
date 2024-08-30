@@ -312,6 +312,7 @@ export class ChessBoard {
 
 
     public move(prevX: number, prevY: number, newX: number, newY: number, promotedPieceType: FENChar | null): void {
+        if(this._isGameOver) throw new Error("The Game is over. No more legal moves available.");
         if (!this.areCoordsValid(prevX, prevY) || !this.areCoordsValid(newX, newY)) return;
         const piece: Piece | null = this.chessBoard[prevX][prevY];
         if (!piece || piece.color !== this._playerColor) return;
@@ -391,22 +392,93 @@ export class ChessBoard {
         return new Queen(this._playerColor);
     }
 
+    // Checking for if the game cannot proceed or is finished
     private isGameFinished(): boolean {
+        if(this.insufficientMaterial()){
+            this._gameOverMessage= "Draw due to Insufficient Material Condition being reached.";
+            return true;
+        }
         if (!this._safeSquares.size) {
             if (this._checkState.isInCheck) { // In the case of a checkmate
-                const prevPlayer: string = this._playerColor === Color.White ? "Black" : "White";
-                this._gameOverMessage = prevPlayer + " won by checkmate";
+                const prevPlayer: string = this._playerColor === Color.White ? "Pink" : "White";
+                this._gameOverMessage = prevPlayer + " Has won by checkmate.";
             }
-            else this._gameOverMessage = "Stalemate"; // In the case of a stalemate
+            else this._gameOverMessage = "Stalemate has been reached"; // In the case of a stalemate
 
             return true;
         }
 
+        // if (this.threeFoldRepetitionFlag) {
+        //     this._gameOverMessage = "Draw due three fold repetition rule";
+        //     return true;
+        // }
+
         // Before ringing to false case, we must check the counter to see if 50 moves limitation has been breached
         if (this.fiftyMoveRuleCounter === 50) {
-            this._gameOverMessage = "Draw due to rule: 50 moves have been reached without resolution";
+            this._gameOverMessage = "Draw due to Rule: 50 moves have been reached without resolution";
             return true;
         }
         return false; // This will ensure the game continues outside of these cases
     }
+
+
+    // Accounting for Insufficient Materials Scenarios
+    private playerHasOnlyTwoKnightsAndKing(pieces: { piece: Piece, x: number, y: number }[]): boolean {
+        return pieces.filter(piece => piece.piece instanceof Knight).length === 2;
+    } // We filter the piece and check for A) Knight type B) Length
+
+    private playerHasOnlyBishopsWithSameColorAndKing(pieces: { piece: Piece, x: number, y: number }[]): boolean {
+        const bishops = pieces.filter(piece => piece.piece instanceof Bishop);
+        const areAllBishopsOfSameColor = new Set(bishops.map(bishop => ChessBoard.isSquareDark(bishop.x, bishop.y))).size === 1;
+        return bishops.length === pieces.length - 1 && areAllBishopsOfSameColor;
+    } // We filter the piece and check for A) Bishop type B) Same color tile(we use map to check, and if size is 1, then they are on the same color squares) C) piece.length -1 accounts for king to confirm number of bishops
+
+    private insufficientMaterial(): boolean {
+        const whitePieces: { piece: Piece, x: number, y: number }[] = [];
+        const pinkPieces: { piece: Piece, x: number, y: number }[] = [];
+
+        for (let x = 0; x < this.chessBoardSize; x++) { // Traversing the entire board
+            for (let y = 0; y < this.chessBoardSize; y++) {
+                const piece: Piece | null = this.chessBoard[x][y];
+                if (!piece) continue; // If the square is empty, continue
+
+                if (piece.color === Color.White) whitePieces.push({ piece, x, y });
+                else pinkPieces.push({ piece, x, y }); // Append pieces to these arrays to count later
+            }
+        }
+
+        // If King vs King
+        if (whitePieces.length === 1 && pinkPieces.length === 1)
+            return true;
+
+        // If King and Minor Piece vs King
+        if (whitePieces.length === 1 && pinkPieces.length === 2)
+            return pinkPieces.some(piece => piece.piece instanceof Knight || piece.piece instanceof Bishop);
+
+        else if (whitePieces.length === 2 && pinkPieces.length === 1)
+            return whitePieces.some(piece => piece.piece instanceof Knight || piece.piece instanceof Bishop);
+
+        // If both sides have bishop of same tile/square color
+        else if (whitePieces.length === 2 && pinkPieces.length === 2) {
+            const whiteBishop = whitePieces.find(piece => piece.piece instanceof Bishop);
+            const pinkBishop = pinkPieces.find(piece => piece.piece instanceof Bishop);
+
+            if (whiteBishop && pinkBishop) {
+                const areBishopsOfSameColor: boolean = ChessBoard.isSquareDark(whiteBishop.x, whiteBishop.y) && ChessBoard.isSquareDark(pinkBishop.x, pinkBishop.y) || !ChessBoard.isSquareDark(whiteBishop.x, whiteBishop.y) && !ChessBoard.isSquareDark(pinkBishop.x, pinkBishop.y);
+
+                return areBishopsOfSameColor;
+            }
+        }
+
+        if (whitePieces.length === 3 && pinkPieces.length === 1 && this.playerHasOnlyTwoKnightsAndKing(whitePieces) ||
+            whitePieces.length === 1 && pinkPieces.length === 3 && this.playerHasOnlyTwoKnightsAndKing(pinkPieces)
+        ) return true;
+
+        if (whitePieces.length >= 3 && pinkPieces.length === 1 && this.playerHasOnlyBishopsWithSameColorAndKing(whitePieces) ||
+            whitePieces.length === 1 && pinkPieces.length >= 3 && this.playerHasOnlyBishopsWithSameColorAndKing(pinkPieces)
+        ) return true;
+
+        return false; // If none of these insufficient materials cases are true, we continue the game as normal
+    }
+
 }

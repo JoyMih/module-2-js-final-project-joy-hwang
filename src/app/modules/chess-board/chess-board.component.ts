@@ -16,6 +16,7 @@ export class ChessBoardComponent {
   public chessBoardView: (FENChar | null)[][] = this.chessBoard.chessBoardView;
   public get playerColor(): Color { return this.chessBoard.playerColor; };
   public get safeSquares(): SafeSquares { return this.chessBoard.safeSquares; };  // note that selectedSquare is imported from models.ts in the MODULES folder
+  public get gameOverMessage(): String | undefined {return this.chessBoard.gameOverMessage;};
 
   private selectedSquare: SelectedSquare = { piece: null }; // initially empty
   private pieceSafeSquares: Coords[] = []; // initially empty
@@ -72,6 +73,7 @@ export class ChessBoardComponent {
   }
 
   public selectingPiece(x: number, y: number): void { // return type is void
+    if(this.gameOverMessage !== undefined) return; // If the game is finished and there are no more legal moves that can be played, we disable selectingPiece() function and return from the function.
     const piece: FENChar | null = this.chessBoardView[x][y];
     if (!piece) return; // if the square is empty, return from the function
     if (this.isWrongPieceSelected(piece)) return;
