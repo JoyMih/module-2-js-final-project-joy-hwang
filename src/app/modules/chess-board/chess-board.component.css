@@ -1,9 +1,27 @@
+.container {
+    display: flex;
+    align-items: center;
+    /* justify-content: space-between; */
+    flex-direction: column;
+    row-gap: 0.25rem;
+}
+
+.title{
+    display: flex;
+}
+
+.game-title{
+    color: white;
+    padding-top: 1rem;
+}
+
 .chess-board {
     display: flex;
     justify-content: center;
     flex-direction: column-reverse;
     width: 480px;
     height: 480px;
+    /* margin-top: 2rem; */
 }
 
 .rotated {
@@ -64,6 +82,15 @@
 
 .piece {
     width: 50px;
+}
+
+.flip-button{
+    display: flex;
+    justify-content: center;
+    width: 380px;
+    font-size: large;
+    padding: 0.5em 0rem;
+    background-color: rgb(255, 192, 218);
 }
 
 .selected-square {

@@ -1,7 +1,11 @@
-<div class="chess-board">
-    <div *ngFor="let row of chessBoardView; let x = index" class="row">
-        <!-- Using a global/public method for isSquareDark() created in chess-board.ts, and we are appending an Angular class to the div to implement it -->
-        <div *ngFor="let piece of row; let y = index" class="square" [ngClass]="{'dark': isSquareDark(x,y), 
+<div class="container">
+    <div class="title">
+        <h1 class="game-title">White vs Pink Chess Game</h1>
+    </div>
+    <div class="chess-board" [ngClass]="{'rotated': flipMode}">
+        <div *ngFor="let row of chessBoardView; let x = index" class="row">
+            <!-- Using a global/public method for isSquareDark() created in chess-board.ts, and we are appending an Angular class to the div to implement it -->
+            <div *ngFor="let piece of row; let y = index" class="square" [ngClass]="{'dark': isSquareDark(x,y), 
             'light': !isSquareDark(x,y), 
             'selected-square': isSquareSelected(x, y),
             'last-move': isSquareLastMove(x, y),
@@ -9,19 +13,23 @@
             'promotion-square': isSquarePromotionSquare(x, y)
         }" (click)="move(x, y)">
 
-            <!-- Declaring a click event for the selected piece, in which the selectingPiece() function takes two arguments -->
-            <div [ngClass]="{'safe-square': isSquareSafeForSelectedPiece(x, y)}"></div>
+                <!-- Declaring a click event for the selected piece, in which the selectingPiece() function takes two arguments -->
+                <div [ngClass]="{'safe-square': isSquareSafeForSelectedPiece(x, y)}"></div>
 
-            <!-- Image tag will only exist if the piece is different from the present. Source stock is appended -->
-            <img *ngIf="piece" [src]="pieceImagePaths[piece]" [alt]="piece" class="piece">
-            <!-- Piece class only sets pixel width of each image -->
+                <!-- Image tag will only exist if the piece is different from the present. Source stock is appended -->
+                <img *ngIf="piece" [src]="pieceImagePaths[piece]" [alt]="piece" class="piece"
+                    [ngClass]="{'rotated': flipMode}">
+                <!-- Piece class only sets pixel width of each image -->
+            </div>
         </div>
     </div>
 
+    <button (click)="flipBoard()" class="flip-button">Flip the Board</button>
+
     <!-- Display Game Over Message -->
-     <h2 *ngIf="gameOverMessage" class="game-over-message"> 
+    <h2 *ngIf="gameOverMessage" class="game-over-message">
         {{gameOverMessage}}
-     </h2>
+    </h2>
 
     <!-- Promotion dialogue -->
     <div *ngIf="isPromotionActive" class="promotion-dialog">

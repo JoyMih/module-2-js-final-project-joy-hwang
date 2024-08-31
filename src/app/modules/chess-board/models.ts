@@ -11,3 +11,6 @@ type SquareWithoutPiece = {
 }
 
 export type SelectedSquare = SquareWithPiece | SquareWithoutPiece;
+
+// These represent the columns on the chessboard
+export const columns = ["a", "b", "c", "d", "e", "f", "g", "h"] as const;

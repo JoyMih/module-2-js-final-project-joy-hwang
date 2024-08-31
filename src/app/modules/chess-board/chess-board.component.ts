@@ -35,6 +35,12 @@ export class ChessBoardComponent {
     return ChessBoard.isSquareDark(x, y);
   }
 
+  public flipMode: boolean = false;
+
+  public flipBoard(): void{
+    this.flipMode = !this.flipMode;
+  };
+
   // Applying special CSS classes
   public isSquareSelected(x: number, y: number): boolean {
     if (!this.selectedSquare.piece) return false;

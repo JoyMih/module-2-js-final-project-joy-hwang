@@ -6,6 +6,7 @@ import { Bishop } from "./pieces/bishop";
 import { Queen } from "./pieces/queen";
 import { King } from "./pieces/king";
 import { Pawn } from "./pieces/pawn";
+import { FENConverter } from "./FENConverter";
 
 export class ChessBoard {
     // Pieces and null: representing empty squares
@@ -22,6 +23,14 @@ export class ChessBoard {
 
     private _isGameOver: boolean = false;
     private _gameOverMessage: string | undefined;
+
+    private numberOfFullMoves: number = 1;
+    private threeFoldRepetitionDictionary = new Map<string, number>();
+    private threeFoldRepetitionFlag: boolean = false;
+
+    // We will set a property that will hold the board position as a FEN string
+    private _boardAsFEN: string = "";
+    private FENConverter = new FENConverter();
 
     constructor() {
         // Implementing the chessBOard properties in the constructor
@@ -72,6 +81,10 @@ export class ChessBoard {
 
     public get checkState(): CheckState {
         return this._checkState;
+    }
+
+    public get boardAsFEN(): string {
+        return this._boardAsFEN;
     }
 
     public get isGameOver(): boolean {
@@ -312,7 +325,7 @@ export class ChessBoard {
 
 
     public move(prevX: number, prevY: number, newX: number, newY: number, promotedPieceType: FENChar | null): void {
-        if(this._isGameOver) throw new Error("The Game is over. No more legal moves available.");
+        if (this._isGameOver) throw new Error("The Game is over. No more legal moves available.");
         if (!this.areCoordsValid(prevX, prevY) || !this.areCoordsValid(newX, newY)) return;
         const piece: Piece | null = this.chessBoard[prevX][prevY];
         if (!piece || piece.color !== this._playerColor) return;
@@ -337,6 +350,7 @@ export class ChessBoard {
 
         this.handlingSpecialMoves(piece, prevX, prevY, newX, newY, moveType);
 
+
         // After this, we must update the chessboard
         if (promotedPieceType) {
             this.chessBoard[newX][newY] = this.promotedPiece(promotedPieceType);
@@ -351,6 +365,12 @@ export class ChessBoard {
         this._playerColor = this._playerColor === Color.White ? Color.Pink : Color.White;
         this.isInCheck(this._playerColor, true);
         this._safeSquares = this.findSafeSquares();
+        
+
+        if (this._playerColor === Color.White) this.numberOfFullMoves++;
+        this._boardAsFEN = this.FENConverter.convertBoardToFEN(this.chessBoard, this._playerColor, this._lastMove, this.fiftyMoveRuleCounter, this.numberOfFullMoves);
+        this.updateThreeFoldRepetitionDictionary(this.boardAsFEN)
+
         this._isGameOver = this.isGameFinished();
     }
 
@@ -394,8 +414,8 @@ export class ChessBoard {
 
     // Checking for if the game cannot proceed or is finished
     private isGameFinished(): boolean {
-        if(this.insufficientMaterial()){
-            this._gameOverMessage= "Draw due to Insufficient Material Condition being reached.";
+        if (this.insufficientMaterial()) {
+            this._gameOverMessage = "Draw due to Insufficient Material Condition being reached.";
             return true;
         }
         if (!this._safeSquares.size) {
@@ -408,10 +428,10 @@ export class ChessBoard {
             return true;
         }
 
-        // if (this.threeFoldRepetitionFlag) {
-        //     this._gameOverMessage = "Draw due three fold repetition rule";
-        //     return true;
-        // }
+        if (this.threeFoldRepetitionFlag) { // We update the message in the true condition
+            this._gameOverMessage = "Draw due to the Three Fold Repetition Rule";
+            return true;
+        }
 
         // Before ringing to false case, we must check the counter to see if 50 moves limitation has been breached
         if (this.fiftyMoveRuleCounter === 50) {
@@ -481,4 +501,20 @@ export class ChessBoard {
         return false; // If none of these insufficient materials cases are true, we continue the game as normal
     }
 
+    private updateThreeFoldRepetitionDictionary(FEN: string): void {
+        const threeFoldRepetitionFENKey: string = FEN.split(" ").slice(0, 4).join("");  // We grab the first three of the string. If they are equivalent, repetition occurred
+        const threeFoldRepetitionValue: number | undefined = this.threeFoldRepetitionDictionary.get(threeFoldRepetitionFENKey); // Checking if the key is in the Map
+
+        // If the three fold repetition value yields undefined, we must update the Map
+        if (threeFoldRepetitionValue === undefined) {
+            this.threeFoldRepetitionDictionary.set(threeFoldRepetitionFENKey, 1); // Update the key and set it to 1
+        }
+        else {
+            if (threeFoldRepetitionValue === 2) { // When the value is 2, it denotes that the repetition has been made 3 times.
+                this.threeFoldRepetitionFlag = true;
+                return;
+            }
+            this.threeFoldRepetitionDictionary.set(threeFoldRepetitionFENKey, 2); // Otherwise, we will set the value to 2
+        }
+    }
 }
