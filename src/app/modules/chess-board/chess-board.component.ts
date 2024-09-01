@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { ChessBoard } from '../../chess-logic/chess-board';
 import { CheckState, Color, Coords, FENChar, LastMove, pieceImagePaths, SafeSquares } from '../../chess-logic/models';
 import { SelectedSquare } from './models';
+import { ChessBoardService } from './chess-board.service';
 
 @Component({
   selector: 'app-chess-board',
@@ -12,7 +13,7 @@ import { SelectedSquare } from './models';
 export class ChessBoardComponent {
   public pieceImagePaths = pieceImagePaths;
 
-  private chessBoard = new ChessBoard();
+  protected chessBoard = new ChessBoard();
   public chessBoardView: (FENChar | null)[][] = this.chessBoard.chessBoardView;
   public get playerColor(): Color { return this.chessBoard.playerColor; };
   public get safeSquares(): SafeSquares { return this.chessBoard.safeSquares; };  // note that selectedSquare is imported from models.ts in the MODULES folder
@@ -30,6 +31,8 @@ export class ChessBoardComponent {
   public promotionPieces(): FENChar[] { // An array of FENCharacters in which we can promote our player's pawn
     return this.playerColor === Color.White ? [FENChar.WhiteKnight, FENChar.WhiteBishop, FENChar.WhiteRook, FENChar.WhiteQueen] : [FENChar.PinkKnight, FENChar.PinkBishop, FENChar.PinkRook, FENChar.PinkQueen];
   };
+
+  constructor(protected chessBoardService: ChessBoardService){ }
 
   public isSquareDark(x: number, y: number): boolean {
     return ChessBoard.isSquareDark(x, y);
@@ -117,7 +120,7 @@ export class ChessBoardComponent {
     this.updateBoard(prevX, prevY, newX, newY, this.promotedPiece);
   }
 
-  private updateBoard(prevX: number, prevY: number, newX: number, newY: number, promotedPiece: FENChar | null): void {
+  protected updateBoard(prevX: number, prevY: number, newX: number, newY: number, promotedPiece: FENChar | null): void {
     this.chessBoard.move(prevX, prevY, newX, newY, this.promotedPiece); // Calling the move function
     // Then update the chessboard view
     this.chessBoardView = this.chessBoard.chessBoardView;
