@@ -1,4 +1,4 @@
-import { FENChar } from "../../chess-logic/models";
+import { Color, FENChar } from "../../chess-logic/models";
 
 export type StockfishQueryParams = {
     fen: string;
@@ -17,4 +17,19 @@ export type ChessMove = {
 export type StockfishResponse = {
     success: boolean;
     data: string;
+}
+
+// Declaring a new type to be used in play() function for playing against computer
+export type ComputerConfiguration = {
+    color: Color;
+    level: number;
+}
+
+// Mapping the levels to Stockfish depth
+export const stockfishLevels: Readonly<Record <number, number>> = {
+    1: 1,
+    2: 4,
+    3: 7,
+    4: 10,
+    5: 13
 }

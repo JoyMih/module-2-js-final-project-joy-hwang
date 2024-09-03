@@ -1,0 +1,28 @@
+<mat-dialog-content class="outer-container">
+    <h2 mat-dialog-title>Select Stockfish Strength</h2>
+
+    <!-- Method used is selectStockfishLevel(level) -->
+    <div class="stockfish-strength-container">
+        <!-- Recall that we set up the array in play-against-computer-dialog.component.ts -->
+        <div *ngFor="let level of stockfishLevels" class="strength-div" (click)="selectStockfishLevel(level)"
+            [ngClass]="{'selected': level === stockfishLevel}">
+            <!-- We also append the 'selected' angular class if the level is the same as stockfish level, denoting that the number has been selected -->
+            {{level}}
+        </div>
+    </div>
+
+    <!-- Allowing for player to choose color to play with, with draggable attribute to false -->
+    <div class="choose-side">
+        <!-- Adding click events for both kings involving the play() function-->
+        <img src="assets/pieces/white-king.png" alt="" class="king-img" draggable="false" (click)="play('w')">
+        <!-- Recall that even though we use Pink vs White, we refer to pink pieces with 'b' for the sake of FEN convention -->
+        <img src="assets/pieces/pink-king.png" alt="" class="king-img" draggable="false" (click)="play('b')">
+    </div>
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close (click)="closeDialog()">
+        Cancel
+    </button>
+</mat-dialog-actions>

@@ -1,14 +1,18 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { ChessMove, StockfishQueryParams, StockfishResponse } from './models';
-import { Observable, of, switchMap } from 'rxjs';
-import { FENChar } from '../../chess-logic/models';
+import { ChessMove, ComputerConfiguration, StockfishQueryParams, StockfishResponse } from './models';
+import { BehaviorSubject, Observable, of, switchMap } from 'rxjs';
+import { Color, FENChar } from '../../chess-logic/models';
 
 @Injectable({
   providedIn: 'root'
 })
 export class StockfishService {
   private readonly api: string = "https://stockfish.online/api/s/v2.php";
+  
+  // Map for ComputerConfigurations exported from models.ts: here, we set the default computer color and level
+  public computerConfiguration$ = new BehaviorSubject<ComputerConfiguration>({color: Color.Pink, level: 1});
+  
   constructor(private http: HttpClient) { }
 
   private convertColumnLetterToYCoord(string: string): number {
@@ -18,10 +22,13 @@ export class StockfishService {
     // Recalling that some of the available "best moves" provided with Stockfish API can actually be 5 letters
   private promotedPiece(piece: string | undefined): FENChar | null {
     if(!piece) return null;
-    if(piece === "n") return FENChar.PinkKnight;
-    if(piece === "b") return FENChar.PinkBishop;
-    if(piece === "r") return FENChar.PinkRook;
-    return FENChar.PinkQueen;
+    
+    const computerColor = this.computerConfiguration$.value.color;
+    // Accounting for if the computer is playing with White pieces
+    if(piece === "n") return computerColor === Color.White ? FENChar.WhiteKnight : FENChar.PinkKnight;
+    if(piece === "b") return computerColor === Color.White ? FENChar.WhiteBishop : FENChar.PinkBishop;
+    if(piece === "r") return computerColor === Color.White ? FENChar.WhiteRook : FENChar.PinkRook;
+    return computerColor === Color.White ? FENChar.WhiteQueen : FENChar.PinkQueen;
   }
 
 
@@ -39,7 +46,7 @@ export class StockfishService {
   public getBestMove(fen: string): Observable<ChessMove> {
     const queryParams: StockfishQueryParams = {
       fen,
-      depth: 13,
+      depth: this.computerConfiguration$.value.level,
       mode: "bestMove"
     };
     // Creating the HttpParams Object

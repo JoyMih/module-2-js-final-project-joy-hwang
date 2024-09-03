@@ -1,0 +1,40 @@
+.outer-container{
+    display: flex;
+    flex-flow: column wrap;
+    justify-content: space-around;
+    min-height: 200px;
+}
+
+.stockfish-strength-container {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.strength-div {
+    display: flex;
+    justify-content: center;
+    border: 1px solid white;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    text-align: center;
+    font-size: 20px;
+    line-height: 40px;
+}
+
+.choose-side {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.king-img {
+    display: flex;
+    width: 50px;
+    cursor: pointer;
+}
+
+.selected {
+    background-color: green;
+    border-radius: 5px;
+    color: white;
+}

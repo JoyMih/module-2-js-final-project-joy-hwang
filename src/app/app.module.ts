@@ -7,6 +7,7 @@ import { ChessBoardComponent } from './modules/chess-board/chess-board.component
 import { ComputerModeComponent } from './modules/computer-mode/computer-mode.component';
 import { provideHttpClient } from '@angular/common/http';
 import { NavMenuComponent } from './modules/nav-menu/nav-menu.component';
+import { PlayAgainstComputerDialogComponent } from './modules/play-against-computer-dialog/play-against-computer-dialog.component';
 
 @NgModule({
   declarations: [
@@ -17,7 +18,8 @@ import { NavMenuComponent } from './modules/nav-menu/nav-menu.component';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    NavMenuComponent // We transferred this line from declarations to imports array because we set the standalone property to true under nav-menu.components.ts
+    NavMenuComponent, // We transferred this line from declarations to imports array because we set the standalone property to true under nav-menu.component.ts
+    PlayAgainstComputerDialogComponent // We transferred this line from declarations to imports array because we set the standalone property to true under play-against-computer-dialog.component.ts
   ],
   providers: [provideHttpClient()],
   bootstrap: [AppComponent]

@@ -1,9 +1,11 @@
-<mat-toolbar>
-    <button mat-button routerLink="/against-friend">
+<mat-toolbar class="container">
+    <button mat-button routerLink="/against-friend" class="select-opponent-button">
         Play against friend
     </button>
-    <button mat-button routerLink="/against-computer">
-        Play against Computer
+
+    <!-- Adding playAgainstComputer function that takes no arguments-->
+    <button mat-button (click)="playAgainstComputer()" class="select-opponent-button">
+        Play Against the Computer
     </button>
 </mat-toolbar>
 

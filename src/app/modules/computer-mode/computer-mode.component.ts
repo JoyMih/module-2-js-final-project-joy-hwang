@@ -3,6 +3,7 @@ import { ChessBoardComponent } from '../chess-board/chess-board.component';
 import { StockfishService } from './stockfish.service';
 import { ChessBoardService } from '../chess-board/chess-board.service';
 import { firstValueFrom, Subscription } from 'rxjs';
+import { Color } from '../../chess-logic/models';
 
 @Component({
   selector: 'app-computer-mode',
@@ -21,10 +22,23 @@ export class ComputerModeComponent extends ChessBoardComponent implements OnInit
   }
 
   public ngOnInIt(): void {
+    // If player selects Pink pieces to play, we rotate the board for that configuration
+    const computerConfigurationSubscription$: Subscription = this.stockfishService.computerConfiguration$.subscribe({
+      next:(computerConfiguration) => {
+        if(computerConfiguration.color === Color.White) this.flipBoard();
+      }
+    });
+
     const chessBoardStateSubscription$: Subscription = this.chessBoardService.chessBoardState$.subscribe({
       next: async (FEN: string) => { // Using async in conjunction with await
-        const player: string = FEN.split(" ")[1];
-        if (player === "w") return; // Making sure that the computer only plays with Pink pieces
+        if (this.chessBoard.isGameOver) {
+          chessBoardStateSubscription$.unsubscribe(); // If the game is over, chessBoardState$ subscription is unsubscribed from
+          return;
+        }
+        
+        const player: Color = FEN.split(" ")[1] === "w" ? Color.White : Color.Pink;
+        if (player !== this.stockfishService.computerConfiguration$.value.color) return; 
+        // If the player color is different from the computer configuration's value for color, we return from the function
 
         // Converting Observable to Promise using "await" keyword from rxjs operator
         const { prevX, prevY, newX, newY, promotedPiece } = await firstValueFrom(this.stockfishService.getBestMove(FEN)); // Receiving best move from Stockfish string
@@ -33,6 +47,7 @@ export class ComputerModeComponent extends ChessBoardComponent implements OnInit
     });
 
     this.subscriptions$.add(chessBoardStateSubscription$);
+    this.subscriptions$.add(computerConfigurationSubscription$);
   }
 
   public ngOnDestroy(): void{ // Unsubscribing from the subscriptions above using OnDestroy method
