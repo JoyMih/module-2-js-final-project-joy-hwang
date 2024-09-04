@@ -13,7 +13,8 @@ export class FENConverter {
         playerColor: Color,
         lastMove: LastMove | undefined,
         fiftyMoveRuleCounter: number,
-        numberOfFullMoves: number): string {
+        numberOfFullMoves: number
+    ): string {
         let FEN: string = "";
 
         for (let i = 7; i >= 0; i--) { // Recall that the FEN counter goes backwards
@@ -25,15 +26,14 @@ export class FENConverter {
                     consecutiveEmptySquaresCounter++;
                     continue;
                 }
-                if (consecutiveEmptySquaresCounter !== 0) {
+                if (consecutiveEmptySquaresCounter !== 0)
                     FENRow += String(consecutiveEmptySquaresCounter);
-                }
                 consecutiveEmptySquaresCounter = 0;
                 FENRow += piece.FENChar;
             }
-            if (consecutiveEmptySquaresCounter !== 0) { // If the row ends with an empty square
+
+            if (consecutiveEmptySquaresCounter !== 0) // If the row ends with an empty square
                 FENRow += String(consecutiveEmptySquaresCounter);
-            }
 
             FEN += (i === 0) ? FENRow : FENRow + "/";
         }
@@ -43,7 +43,7 @@ export class FENConverter {
         FEN += " " + player;
         FEN += " " + this.castlingAvailability(board);
         FEN += " " + this.enPassantPossibility(lastMove, playerColor);
-        FEN += " " + fiftyMoveRuleCounter*2;
+        FEN += " " + fiftyMoveRuleCounter * 2;
         FEN += " " + numberOfFullMoves;
         return FEN;
     }

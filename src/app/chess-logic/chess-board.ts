@@ -1,4 +1,4 @@
-import { CheckState, Color, Coords, FENChar, LastMove, MoveType, SafeSquares } from "./models";
+import { CheckState, Color, Coords, FENChar, GameHistory, LastMove, MoveList, MoveType, SafeSquares } from "./models";
 import { Piece } from "./pieces/piece";
 import { Rook } from "./pieces/rook";
 import { Knight } from "./pieces/knight";
@@ -7,6 +7,7 @@ import { Queen } from "./pieces/queen";
 import { King } from "./pieces/king";
 import { Pawn } from "./pieces/pawn";
 import { FENConverter } from "./FENConverter";
+import { columns } from "../modules/chess-board/models";
 
 export class ChessBoard {
     // Pieces and null: representing empty squares
@@ -32,6 +33,10 @@ export class ChessBoard {
     private _boardAsFEN: string = "";
     private FENConverter = new FENConverter();
 
+    private _moveList: MoveList = [];
+    private _gameHistory: GameHistory; // We assign this value later in constructor 
+
+
     constructor() {
         // Implementing the chessBOard properties in the constructor
         this.chessBoard = [
@@ -56,6 +61,8 @@ export class ChessBoard {
 
         // Defining the private _safeSquares property
         this._safeSquares = this.findSafeSquares();
+        // Defining the private _gameHistory property
+        this._gameHistory = [{ board: this.chessBoardView, lastMove: this._lastMove, checkState: this.checkState }]
     }
     // Defining the getter for the player Color (global scope)
     public get playerColor(): Color {
@@ -81,6 +88,14 @@ export class ChessBoard {
 
     public get checkState(): CheckState {
         return this._checkState;
+    }
+
+    // Getters for board history and move list
+    public get moveList(): MoveList {
+        return this._moveList;
+    }
+    public get gameHistory(): GameHistory {
+        return this._gameHistory;
     }
 
     public get boardAsFEN(): string {
@@ -354,6 +369,7 @@ export class ChessBoard {
         // After this, we must update the chessboard
         if (promotedPieceType) {
             this.chessBoard[newX][newY] = this.promotedPiece(promotedPieceType);
+            moveType.add(MoveType.Promotion);
         }
         else { // If promotion does not happen, place piece at new x,y coordinates
             this.chessBoard[newX][newY] = piece;
@@ -365,7 +381,16 @@ export class ChessBoard {
         this._playerColor = this._playerColor === Color.White ? Color.Pink : Color.White;
         this.isInCheck(this._playerColor, true);
         this._safeSquares = this.findSafeSquares();
-        
+
+        // Verifying if the game state is checkmate or not
+        if (this._checkState.isInCheck)
+            moveType.add(!this._safeSquares.size ? MoveType.CheckMate : MoveType.Check);
+        else if (!moveType.size)
+            moveType.add(MoveType.BasicMove); // If moveType has no elements, we must append basic move
+
+        // Within here, we store move and update game history
+        this.storeMove(promotedPieceType);
+        this.updateGameHistory();
 
         if (this._playerColor === Color.White) this.numberOfFullMoves++;
         this._boardAsFEN = this.FENConverter.convertBoardToFEN(this.chessBoard, this._playerColor, this._lastMove, this.fiftyMoveRuleCounter, this.numberOfFullMoves);
@@ -516,5 +541,41 @@ export class ChessBoard {
             }
             this.threeFoldRepetitionDictionary.set(threeFoldRepetitionFENKey, 2); // Otherwise, we will set the value to 2
         }
+    }
+
+    private storeMove(promotedPiece: FENChar | null): void {
+        const { piece, currX, currY, prevX, prevY, moveType } = this._lastMove!;
+        let pieceName: string = !(piece instanceof Pawn) ? piece.FENChar.toUpperCase() : "";
+        let move: string;
+
+        if (moveType.has(MoveType.Castling))
+            move = currY - prevY === 2 ? "O-O" : "O-O-O";
+        else {
+            move = pieceName + String(prevX + 1);
+            if (moveType.has(MoveType.Capture))
+                move += (piece instanceof Pawn) ? columns[prevY] + "x" : "x";
+            move += columns[currY] + String(currX + 1);
+
+            if (promotedPiece)
+                move += "=" + promotedPiece.toUpperCase();
+        }
+
+        if (moveType.has(MoveType.Check)) move += "+";
+        else if (moveType.has(MoveType.CheckMate)) move += "#";
+
+        if (!this._moveList[this.numberOfFullMoves - 1])
+            this._moveList[this.numberOfFullMoves - 1] = [move];
+        else
+            this._moveList[this.numberOfFullMoves - 1].push(move);
+    }
+
+    private updateGameHistory(): void {
+        this._gameHistory.push({
+            board: [... this.chessBoardView.map(row => [... row])],
+            checkState: {
+                ... this._checkState
+            },
+            lastMove: this._lastMove ? {... this._lastMove} : undefined
+        })
     }
 }

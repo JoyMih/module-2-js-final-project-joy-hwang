@@ -5,7 +5,7 @@ import { ComputerModeComponent } from '../modules/computer-mode/computer-mode.co
 
 const routes: Routes = [
   { path: "against-friend", component: ChessBoardComponent, title: "Play against Friend" },
-    { path: "against-computer", component: ComputerModeComponent, title: "Play against Computer" }
+  { path: "against-computer", component: ComputerModeComponent, title: "Play against Computer" }
 ];
 
 @NgModule({

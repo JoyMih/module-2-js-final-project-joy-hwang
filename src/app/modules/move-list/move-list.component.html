@@ -1,0 +1,33 @@
+<div>
+    <button mat-icon-button color="primary">
+        <mat-icon>first_page</mat-icon>
+    </button>
+
+    <button mat-icon-button color="primary">
+        <mat-icon>navigate_before</mat-icon>
+    </button>
+
+    <button mat-icon-button color="primary">
+        <mat-icon>navigate_next</mat-icon>
+    </button>
+
+    <button mat-icon-button color="primary">
+        <mat-icon>last_page</mat-icon>
+    </button>
+</div>
+
+<div class="move-list">
+    <div>
+        <div *ngFor="let move of moveList; let moveNumber = index" class="row">
+            <div class="move-number">{{moveNumber + 1}}.</div>
+
+            <div class="move">
+                {{move[0]}}
+            </div>
+
+            <div *ngIf="move[1]" class="move">
+                {{move[1]}}
+            </div>
+        </div>
+    </div>
+</div>

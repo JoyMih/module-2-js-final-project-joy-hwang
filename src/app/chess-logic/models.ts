@@ -74,3 +74,12 @@ type KingNotChecked = {
 }
 
 export type CheckState = KingChecked | KingNotChecked;
+
+// An array of doubles: a string then an optional string
+export type MoveList = ([string, string?])[];
+
+export type GameHistory = {
+    lastMove: LastMove | undefined;
+    checkState: CheckState;
+    board: (FENChar | null)[][];
+}[];

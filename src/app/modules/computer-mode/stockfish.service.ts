@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { ChessMove, ComputerConfiguration, StockfishQueryParams, StockfishResponse } from './models';
+import { ChessMove, ComputerConfiguration, stockfishLevels, StockfishQueryParams, StockfishResponse } from './models';
 import { BehaviorSubject, Observable, of, switchMap } from 'rxjs';
 import { Color, FENChar } from '../../chess-logic/models';
 
@@ -8,7 +8,7 @@ import { Color, FENChar } from '../../chess-logic/models';
   providedIn: 'root'
 })
 export class StockfishService {
-  private readonly api: string = "https://stockfish.online/api/s/v2.php";
+  private readonly api: string = "https://stockfish.online/api/s/v2.php"; // https://stockfish.online/api/s/v2.php
   
   // Map for ComputerConfigurations exported from models.ts: here, we set the default computer color and level
   public computerConfiguration$ = new BehaviorSubject<ComputerConfiguration>({color: Color.Pink, level: 1});
@@ -24,6 +24,7 @@ export class StockfishService {
     if(!piece) return null;
     
     const computerColor = this.computerConfiguration$.value.color;
+
     // Accounting for if the computer is playing with White pieces
     if(piece === "n") return computerColor === Color.White ? FENChar.WhiteKnight : FENChar.PinkKnight;
     if(piece === "b") return computerColor === Color.White ? FENChar.WhiteBishop : FENChar.PinkBishop;
@@ -46,15 +47,16 @@ export class StockfishService {
   public getBestMove(fen: string): Observable<ChessMove> {
     const queryParams: StockfishQueryParams = {
       fen,
-      depth: this.computerConfiguration$.value.level,
-      mode: "bestMove"
+      depth: stockfishLevels[this.computerConfiguration$.value.level]
     };
+    
     // Creating the HttpParams Object
-    let params = new HttpParams().appendAll(queryParams)
+    let params = new HttpParams().appendAll(queryParams);
+    
     return this.http.get<StockfishResponse>(this.api, { params })
       .pipe(
         switchMap(response => {
-          const bestMove = response.data.split(" ")[1];
+          const bestMove = response.bestmove.split(" ")[1];
           return of(this.moveFromStockfishString(bestMove));
         }) // switchMap operator to create new observable from the response
       )

@@ -13,6 +13,7 @@ import { Router } from '@angular/router';
   standalone: true, // We are setting standalone to true
   imports: [MatDialogModule, MatButtonModule, CommonModule] // We also add these imports to the file
 })
+
 export class PlayAgainstComputerDialogComponent {
   // We export the stockfish strength
   public stockfishLevels: readonly number[] = [1, 2, 3, 4, 5];
@@ -29,17 +30,19 @@ export class PlayAgainstComputerDialogComponent {
   public selectStockfishLevel(level: number): void {
     this.stockfishLevel = level; // Updating the stockfishLevel property
   }
+
   public play(color: "w" | "b"): void {
-    this.dialog.closeAll(); // After clicking play, we close all dialogs
+    this.dialog.closeAll();
     this.stockfishService.computerConfiguration$.next({
       color: color === "w" ? Color.Pink : Color.White,
-      level: this.stockfishLevel
+      // level: this.stockfishLevels[this.stockfishLevel] // Passing in the map and accessing the stockfishLevel from thereon
+      level: this.stockfishLevel 
     });
-    // Once play() function is clicked, navigate to computer-mode component
-    this.router.navigate(["against-computer"]);
+    
+    this.router.navigate(["against-computer"]); // Once play() function is clicked, navigate to computer-mode component
   }
-  // Navigate to play against friend component if this option is chosen
+ 
   public closeDialog(): void {
-    this.router.navigate(["against-friend"]);
+    this.router.navigate(["against-friend"]);  // Navigate to play against friend component if this option is chosen
   }
 }

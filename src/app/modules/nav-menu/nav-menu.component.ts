@@ -4,7 +4,6 @@ import { MatButtonModule } from "@angular/material/button"
 import { RouterModule } from '@angular/router';
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { PlayAgainstComputerDialogComponent } from '../play-against-computer-dialog/play-against-computer-dialog.component';
-// import { PlayAgainstComputerDialogComponent } from '../play-against-computer-dialog/play-against-computer-dialog.component';
 
 @Component({
   selector: 'app-nav-menu',
@@ -15,7 +14,7 @@ import { PlayAgainstComputerDialogComponent } from '../play-against-computer-dia
 })
 export class NavMenuComponent { 
   // Injecting dialog into constructor
-  constructor(private dialog: MatDialog){ };
+  constructor(private dialog: MatDialog){ }
 
   public playAgainstComputer(): void {
     this.dialog.open(PlayAgainstComputerDialogComponent)// Opening the injected dialog in this method

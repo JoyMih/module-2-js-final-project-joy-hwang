@@ -2,8 +2,7 @@ import { Color, FENChar } from "../../chess-logic/models";
 
 export type StockfishQueryParams = {
     fen: string;
-    depth: number;
-    mode: string;
+    depth: number; // Removed mode property: Changed the API endpoint to be compatible with the newer version
 }
 
 export type ChessMove = {
@@ -15,8 +14,13 @@ export type ChessMove = {
 }
 
 export type StockfishResponse = {
-    success: boolean;
-    data: string;
+    success: boolean; // Removed data property: Changed the API endpoint to be compatible with the newer version
+
+    // Added properties: evaluation, mate, bestMove, continuation
+    evaluation: number | null;
+    mate: number | null;
+    bestmove: string;
+    continuation: string;
 }
 
 // Declaring a new type to be used in play() function for playing against computer
@@ -27,9 +31,9 @@ export type ComputerConfiguration = {
 
 // Mapping the levels to Stockfish depth
 export const stockfishLevels: Readonly<Record <number, number>> = {
-    1: 1,
-    2: 4,
-    3: 7,
-    4: 10,
-    5: 13
+    1: 10,
+    2: 11,
+    3: 12,
+    4: 13,
+    5: 15
 }

@@ -1,0 +1,41 @@
+.move-list {
+    display: flex;
+    justify-content: center;
+    max-height: 100px;
+    overflow-y: scroll;
+    flex-direction: column-reverse;
+}
+
+.move-list::-webkit-scrollbar {
+    display: none;
+}
+
+.move-list {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.row {
+    width: 250px;
+    display: flex;
+    /* justify-content: center; */
+    color: white
+}
+
+.move-number {
+    width: 50px;
+}
+
+.current-move {
+    background-color: rgb(0, 143, 168);
+}
+
+.move {
+    cursor: pointer;
+    width: 100px;
+}
+
+.move:hover {
+    background-color: rgb(0, 143, 168);
+    opacity: 0.7
+}
