@@ -22,7 +22,7 @@ export class ChessBoard {
     // We set prepare to set a condition limiting 50 moves of no-capture
     private fiftyMoveRuleCounter: number = 0;
 
-    private _isGameOver: boolean = false;
+    private _isTheGameOver: boolean = false;
     private _gameOverMessage: string | undefined;
 
     private numberOfFullMoves: number = 1;
@@ -30,7 +30,7 @@ export class ChessBoard {
     private threeFoldRepetitionFlag: boolean = false;
 
     // We will set a property that will hold the board position as a FEN string
-    private _boardAsFEN: string = "";
+    private _boardToFEN: string = "";
     private FENConverter = new FENConverter();
 
     private _moveList: MoveList = [];
@@ -98,12 +98,12 @@ export class ChessBoard {
         return this._gameHistory;
     }
 
-    public get boardAsFEN(): string {
-        return this._boardAsFEN;
+    public get boardToFEN(): string {
+        return this._boardToFEN;
     }
 
-    public get isGameOver(): boolean {
-        return this.isGameOver;
+    public get isTheGameOver(): boolean {
+        return this.isTheGameOver;
     }
 
     public get gameOverMessage(): string | undefined {
@@ -118,7 +118,7 @@ export class ChessBoard {
 
 
     // Creating a new private method to check whether or not a move is in range. It intakes coordinates and returns a boolean.
-    private areCoordsValid(x: number, y: number): boolean {
+    private areCoordinatesValid(x: number, y: number): boolean {
         // Coordinate values must fit within the 8 rows and 8 columns
         return x >= 0 && y >= 0 && x < this.chessBoardSize && y < this.chessBoardSize;
     }
@@ -141,7 +141,7 @@ export class ChessBoard {
                     let newY: number = y + dy;
 
                     // However, if coordinates are not valid, the checks must continue still
-                    if (!this.areCoordsValid(newX, newY)) continue;
+                    if (!this.areCoordinatesValid(newX, newY)) continue;
 
                     // Checking if the piece is an instance of pawn, knight, or king
                     if (piece instanceof Pawn || piece instanceof Knight || piece instanceof King) {
@@ -155,11 +155,11 @@ export class ChessBoard {
                         }
                     }
                     else { // This case is now for pieces that are instances of bishop, rook, or queen. These pieces can move multiple squares at a time along a direction.
-                        while (this.areCoordsValid(newX, newY)) {
+                        while (this.areCoordinatesValid(newX, newY)) {
                             const attackedPiece: Piece | null = this.chessBoard[newX][newY];
                             // Checking if the player color's king piece has been attacked (here again.)
                             if (attackedPiece instanceof King && attackedPiece.color === playerColor) {
-                                if (checkingCurrentPosition) this._checkState = { isInCheck: true, x: newX, y: newY };
+                                if (checkingCurrentPosition) this._checkState = { isInCheck: true, x: newX, y: newY }
                                 return true;
                             }
 
@@ -224,7 +224,7 @@ export class ChessBoard {
                     let newY: number = y + dy;
 
                     // Validate if the coordinates are valid and traversable
-                    if (!this.areCoordsValid(newX, newY)) continue;
+                    if (!this.areCoordinatesValid(newX, newY)) continue;
 
                     // Declaring a new piece representing the newX and newY coordinate
                     let newPiece: Piece | null = this.chessBoard[newX][newY];
@@ -248,22 +248,20 @@ export class ChessBoard {
 
                     // Checking for pawn, king, knight
                     if (piece instanceof Pawn || piece instanceof King || piece instanceof Knight) {
-                        if (this.isPositionSafeAfterMove(x, y, newX, newY)) {
+                        if (this.isPositionSafeAfterMove(x, y, newX, newY))
                             // If the position is safe, then we can push and append these new coordinates
                             pieceSafeSquares.push({ x: newX, y: newY });
-                        }
                     }
                     else { // Now we are checking for the other pieces
                         // Recall how bishops, rooks, and queens can move several squares along a direction. This necessitates a while loop, which will allow the traversal through all possible spaces in each direction.
-                        while (this.areCoordsValid(newX, newY)) {
+                        while (this.areCoordinatesValid(newX, newY)) {
                             newPiece = this.chessBoard[newX][newY];
                             // Break the while loop when the desired end location contains a piece of the player's color, as it is not an takeable position.
                             if (newPiece && newPiece.color === piece.color) break;
 
-                            if (this.isPositionSafeAfterMove(x, y, newX, newY)) {
+                            if (this.isPositionSafeAfterMove(x, y, newX, newY))
                                 // If the position is safe, then we can push and append these new coordinates
                                 pieceSafeSquares.push({ x: newX, y: newY });
-                            }
 
                             if (newPiece !== null) break;
 
@@ -284,9 +282,8 @@ export class ChessBoard {
                     pieceSafeSquares.push({ x: x + (piece.color === Color.White ? 1 : -1), y: this._lastMove!.prevY });
 
                 // This delineated that if piece contains any safe squares, we must push those safe squares into the map of safe squares we are creating
-                if (pieceSafeSquares.length) {
+                if (pieceSafeSquares.length)
                     safeSquares.set(x + "," + y, pieceSafeSquares);
-                }
             }
         }
         return safeSquares;
@@ -339,9 +336,10 @@ export class ChessBoard {
     }
 
 
-    public move( prevX: number, prevY: number, newX: number, newY: number, promotedPieceType: FENChar | null ): void {
-        if (this._isGameOver) throw new Error("The Game is over. No more legal moves available.");
-        if (!this.areCoordsValid(prevX, prevY) || !this.areCoordsValid(newX, newY)) return;
+    public move(prevX: number, prevY: number, newX: number, newY: number, promotedPieceType: FENChar | null): void {
+        if (this._isTheGameOver) throw new Error("The Game is over. No more legal moves are available.");
+
+        if (!this.areCoordinatesValid(prevX, prevY) || !this.areCoordinatesValid(newX, newY)) return;
         const piece: Piece | null = this.chessBoard[prevX][prevY];
         if (!piece || piece.color !== this._playerColor) return;
 
@@ -359,7 +357,7 @@ export class ChessBoard {
         const isPieceTaken: boolean = this.chessBoard[newX][newY] !== null; // Empty square/null would denote that a piece was taken
         if (isPieceTaken) moveType.add(MoveType.Capture);
 
-        // Subsequently, we impose our limitation beneath the 
+        // Subsequently, we impose our limitation below
         if (piece instanceof Pawn || isPieceTaken) this.fiftyMoveRuleCounter = 0; // If the piece is a Pawn or if the piece is taken (true case), the counter is reset
         else this.fiftyMoveRuleCounter += 0.5; // 0.5 is because each player's move is half of one whole turn.
 
@@ -374,17 +372,18 @@ export class ChessBoard {
         else { // If promotion does not happen, place piece at new x,y coordinates
             this.chessBoard[newX][newY] = piece;
         }
+        
         this.chessBoard[prevX][prevY] = null;
-        this.chessBoard[newX][newY] = piece;
 
         this._lastMove = { prevX, prevY, currX: newX, currY: newY, piece, moveType };
         this._playerColor = this._playerColor === Color.White ? Color.Pink : Color.White;
         this.isInCheck(this._playerColor, true);
-        this._safeSquares = this.findSafeSquares();
+        // Updating and storing safe squares in a variable after the storeMove() function is called
+        const safeSquares: SafeSquares = this.findSafeSquares();
 
         // Verifying if the game state is checkmate or not
         if (this._checkState.isInCheck)
-            moveType.add(!this._safeSquares.size ? MoveType.CheckMate : MoveType.Check); // If the player no longer has safe squares to move to and the player is in check, we push Check to MoveType
+            moveType.add(!safeSquares.size ? MoveType.CheckMate : MoveType.Check); // If the player no longer has safe squares to move to and the player is in check, we push Check to MoveType
         else if (!moveType.size)
             moveType.add(MoveType.BasicMove); // If moveType has no elements, we must append basic move to MoveType array to keep track
 
@@ -392,11 +391,12 @@ export class ChessBoard {
         this.storeMove(promotedPieceType);
         this.updateGameHistory();
 
+        this._safeSquares = safeSquares;
         if (this._playerColor === Color.White) this.numberOfFullMoves++;
-        this._boardAsFEN = this.FENConverter.convertBoardToFEN(this.chessBoard, this._playerColor, this._lastMove, this.fiftyMoveRuleCounter, this.numberOfFullMoves);
-        this.updateThreeFoldRepetitionDictionary(this.boardAsFEN)
+        this._boardToFEN = this.FENConverter.convertBoardToFEN(this.chessBoard, this._playerColor, this._lastMove, this.fiftyMoveRuleCounter, this.numberOfFullMoves);
+        this.updateThreeFoldRepetitionDictionary(this.boardToFEN)
 
-        this._isGameOver = this.isGameFinished();
+        this._isTheGameOver = this.isTheGameFinished();
     }
 
     private handlingSpecialMoves(piece: Piece, prevX: number, prevY: number, newX: number, newY: number, moveType: Set<MoveType>): void {
@@ -438,8 +438,8 @@ export class ChessBoard {
     }
 
     // Checking for if the game cannot proceed or is finished
-    private isGameFinished(): boolean {
-        if (this.insufficientMaterial()) {
+    private isTheGameFinished(): boolean {
+        if (this.insufficientMatingMaterial()) {
             this._gameOverMessage = "Draw due to Insufficient Material Condition being reached.";
             return true;
         }
@@ -478,7 +478,7 @@ export class ChessBoard {
         return bishops.length === pieces.length - 1 && areAllBishopsOfSameColor;
     } // We filter the piece and check for A) Bishop type B) Same color tile(we use map to check, and if size is 1, then they are on the same color squares) C) piece.length -1 accounts for king to confirm number of bishops
 
-    private insufficientMaterial(): boolean {
+    private insufficientMatingMaterial(): boolean {
         const whitePieces: { piece: Piece, x: number, y: number }[] = [];
         const pinkPieces: { piece: Piece, x: number, y: number }[] = [];
 
@@ -551,7 +551,7 @@ export class ChessBoard {
         if (moveType.has(MoveType.Castling)) // Using chess O and X notation for Castling and regular Capture
             move = currY - prevY === 2 ? "O-O" : "O-O-O"; // We are checking for the SIDE of the BOARD in which the castling move is happening (left or right, by comparing Y values)
         else {
-            move = pieceName + columns[prevY] + String(prevX + 1);
+            move = pieceName + this.startingPieceCoordinatesNotation();
             if (moveType.has(MoveType.Capture))
                 move += (piece instanceof Pawn) ? columns[prevY] + "x" : "x"; // We are checking for if capture has happened and appending if true
             move += columns[currY] + String(currX + 1);
@@ -568,6 +568,46 @@ export class ChessBoard {
             this._moveList[this.numberOfFullMoves - 1] = [move]; // Appending the moves for White Pieces
         else
             this._moveList[this.numberOfFullMoves - 1].push(move); // Appending the moves for Pink Pieces
+    }
+
+    private startingPieceCoordinatesNotation(): string {
+        // Deconstructing the propertied from object ._lastMove
+        const { piece: currentPiece, prevX, prevY, currX, currY } = this._lastMove!;
+
+        // If the current piece is King or Pawn, we exit the function
+        if (currentPiece instanceof Pawn || currentPiece instanceof King) return "";
+
+        const samePiecesCoordinates: Coords[] = [{ x: prevX, y: prevY }]; // This array represents all pieces of the same type that has the same target square as the piece that last made a move
+
+        // Iterating through the entire 2D Chessboard
+        for (let x = 0; x < this.chessBoardSize; x++) {
+            for (let y = 0; y < this.chessBoardSize; y++) {
+                const piece: Piece | null = this.chessBoard[x][y];
+                if (!piece || (currX === x && currY === y)) continue; // The same piece has been identified, so we must continue
+
+                if (piece.FENChar === currentPiece.FENChar) { // Checking for if the piece has the same FENCharacter as the current piece
+                    const safeSquares: Coords[] = this._safeSquares.get(x + "," + y) || []; // Destructuring coordinates for safe squares
+                    const pieceHasSameTargetSquare: boolean = safeSquares.some(coords => coords.x === currX && coords.y === currY); // Compare the coordinates to see if they are equal
+                    if (pieceHasSameTargetSquare) samePiecesCoordinates.push({ x, y });
+                }
+            }
+        }
+        if (samePiecesCoordinates.length === 1) return ""; // Length of 1 denotes that there were no same type pieces that had the same target square as that last piece that made a move, returning an empty string
+
+        // Two sets that will contain records of how many same type pieces had the same target square
+        const pieceFile = new Set(samePiecesCoordinates.map(coordinates => coordinates.y));
+        const pieceRank = new Set(samePiecesCoordinates.map(coordinates => coordinates.x));
+
+        // If true, this denotes that all of the pieces are of different files (a, b, c, d, ...), hence we return the columns of the previous y index
+        if (pieceFile.size === samePiecesCoordinates.length)
+            return columns[prevY];
+
+        // If true, this denotes that all of the pieces are of different ranks (1, 2, 3, 4, ...), hence we return the previous X position + 1
+        if (pieceRank.size === samePiecesCoordinates.length)
+            return String(prevX + 1);
+
+        // However, in the case that none of the above are true, we specify file and rank, denoting that 1 or more of these detected pieces share both rank and file (this is the formal notation that we shortened with the startingPieceCoordinatesNotation() function)
+        return columns[prevY] + String(prevX + 1);
     }
 
     private updateGameHistory(): void {

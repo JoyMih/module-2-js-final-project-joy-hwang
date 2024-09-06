@@ -8,7 +8,7 @@ export class Bishop extends Piece {
         { x: 1, y: 1 },
         { x: 1, y: -1 },
         { x: -1, y: 1 },
-        { x: 1, y: -1 }
+        { x: -1, y: -1 }
     ];
     // Specifying now the bishop piece color
     constructor(private pieceColor: Color) {

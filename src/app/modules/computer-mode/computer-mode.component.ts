@@ -29,7 +29,7 @@ export class ComputerModeComponent extends ChessBoardComponent implements OnInit
 
     const chessBoardStateSubscription$: Subscription = this.chessBoardService.chessBoardState$.subscribe({
       next: async (FEN: string) => { // Using async in conjunction with await
-        if (this.chessBoard.isGameOver) {
+        if (this.chessBoard.isTheGameOver) {
           chessBoardStateSubscription$.unsubscribe(); // If the game is over, chessBoardState$ subscription is unsubscribed from
           return;
         }

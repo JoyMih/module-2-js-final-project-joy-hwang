@@ -121,6 +121,7 @@ export class ChessBoardComponent {
 
   public selectingPiece(x: number, y: number): void { // return type is void
     if(this.gameOverMessage !== undefined) return; // If the game is finished and there are no more legal moves that can be played, we disable selectingPiece() function and return from the function.
+    
     const piece: FENChar | null = this.chessBoardView[x][y];
     if (!piece) return; // if the square is empty, return from the function
     if (this.isWrongPieceSelected(piece)) return;
@@ -167,7 +168,7 @@ export class ChessBoardComponent {
     this.lastMove = this.chessBoard.lastMove;
     
     this.unmarkingPreviouslySelectedAndSafeSquares(); // Removing the previous "safe squares" marks after placing into current position
-    this.chessBoardService.chessBoardState$.next(this.chessBoard.boardAsFEN);
+    this.chessBoardService.chessBoardState$.next(this.chessBoard.boardToFEN);
     this.gameHistoryPointer++;
   }
 
