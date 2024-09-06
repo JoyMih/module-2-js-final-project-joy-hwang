@@ -551,7 +551,7 @@ export class ChessBoard {
         if (moveType.has(MoveType.Castling)) // Using chess O and X notation for Castling and regular Capture
             move = currY - prevY === 2 ? "O-O" : "O-O-O"; // We are checking for the SIDE of the BOARD in which the castling move is happening (left or right, by comparing Y values)
         else {
-            move = pieceName + String(prevX + 1);
+            move = pieceName + columns[prevY] + String(prevX + 1);
             if (moveType.has(MoveType.Capture))
                 move += (piece instanceof Pawn) ? columns[prevY] + "x" : "x"; // We are checking for if capture has happened and appending if true
             move += columns[currY] + String(currX + 1);
