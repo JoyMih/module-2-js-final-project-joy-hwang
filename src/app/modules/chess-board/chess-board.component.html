@@ -41,4 +41,7 @@
     </div>
 </div>
 
-<app-move-list [moveList]="moveList"></app-move-list>
+
+<!-- We appended the move list component, followed by input bindings for other component as well, and the output binding last-->
+<app-move-list [moveList]="moveList" [gameHistoryPointer]="gameHistoryPointer" [gameHistoryLength]="gameHistory.length" (showPreviousPositionEvent)="showPreviousPosition($event)">
+</app-move-list>

@@ -8,6 +8,7 @@
 
 .title{
     display: flex;
+    font-size: 12px;
 }
 
 .game-title{
@@ -19,8 +20,8 @@
     display: flex;
     justify-content: center;
     flex-direction: column-reverse;
-    width: 480px;
-    height: 480px;
+    width: 475px;
+    height: 475px;
     /* margin-top: 2rem; */
 }
 
@@ -89,7 +90,8 @@
     justify-content: center;
     width: 380px;
     font-size: large;
-    padding: 0.5em 0rem;
+    padding: 0.35em 0rem;
+    width: 475px;
     background-color: rgb(255, 192, 218);
 }
 

@@ -28,7 +28,7 @@ export class ChessBoardComponent {
 
   public get moveList(): MoveList { return this.chessBoard.moveList; };
   public get gameHistory(): GameHistory { return this.chessBoard.gameHistory; };
-  public gameHistoryPointer: number = 0;
+  public gameHistoryPointer: number = 0; // This represents the current move in the move-list component
 
   // Properties for pawn promotion
   public isPromotionActive: boolean = false; // Open promotion dialogue
@@ -206,9 +206,11 @@ export class ChessBoardComponent {
   }
 
   public showPreviousPosition(moveIndex: number): void {
+    // We practice destructuring here to obtain the three properties
     const { board, checkState, lastMove } = this.gameHistory[moveIndex];
     this.chessBoardView = board;
-    // this.markLastMoveAndCheckState(lastMove, checkState);
+    this.checkState = checkState;
+    this.lastMove = lastMove;
     this.gameHistoryPointer = moveIndex;
   }
 }

@@ -339,7 +339,7 @@ export class ChessBoard {
     }
 
 
-    public move(prevX: number, prevY: number, newX: number, newY: number, promotedPieceType: FENChar | null): void {
+    public move( prevX: number, prevY: number, newX: number, newY: number, promotedPieceType: FENChar | null ): void {
         if (this._isGameOver) throw new Error("The Game is over. No more legal moves available.");
         if (!this.areCoordsValid(prevX, prevY) || !this.areCoordsValid(newX, newY)) return;
         const piece: Piece | null = this.chessBoard[prevX][prevY];
@@ -355,7 +355,7 @@ export class ChessBoard {
 
         const moveType = new Set<MoveType>();
 
-        // We check if a piece was taken
+        // We check if a piece was taken and check for if a capture is happening
         const isPieceTaken: boolean = this.chessBoard[newX][newY] !== null; // Empty square/null would denote that a piece was taken
         if (isPieceTaken) moveType.add(MoveType.Capture);
 
@@ -369,7 +369,7 @@ export class ChessBoard {
         // After this, we must update the chessboard
         if (promotedPieceType) {
             this.chessBoard[newX][newY] = this.promotedPiece(promotedPieceType);
-            moveType.add(MoveType.Promotion);
+            moveType.add(MoveType.Promotion); // If the type of the promoted piece is NOT null, we push that Promotion is happening
         }
         else { // If promotion does not happen, place piece at new x,y coordinates
             this.chessBoard[newX][newY] = piece;
@@ -384,11 +384,11 @@ export class ChessBoard {
 
         // Verifying if the game state is checkmate or not
         if (this._checkState.isInCheck)
-            moveType.add(!this._safeSquares.size ? MoveType.CheckMate : MoveType.Check);
+            moveType.add(!this._safeSquares.size ? MoveType.CheckMate : MoveType.Check); // If the player no longer has safe squares to move to and the player is in check, we push Check to MoveType
         else if (!moveType.size)
-            moveType.add(MoveType.BasicMove); // If moveType has no elements, we must append basic move
+            moveType.add(MoveType.BasicMove); // If moveType has no elements, we must append basic move to MoveType array to keep track
 
-        // Within here, we store move and update game history
+        // Within here, we store moves and update the game history
         this.storeMove(promotedPieceType);
         this.updateGameHistory();
 
@@ -410,7 +410,7 @@ export class ChessBoard {
             this.chessBoard[rookPositionX][rookPositionY] = null;
             this.chessBoard[rookPositionX][rookNewPositionY] = rook;
             rook.hasMoved = true;
-            moveType.add(MoveType.Castling);
+            moveType.add(MoveType.Castling); // If Castling is occurring, we push Castling into MoveType array to keep track
         }
         else if (
             piece instanceof Pawn &&
@@ -421,7 +421,7 @@ export class ChessBoard {
             newY === this._lastMove.currY
         ) {
             this.chessBoard[this._lastMove.currX][this._lastMove.currY] = null;
-            moveType.add(MoveType.Capture);
+            moveType.add(MoveType.Capture); // If En passant is occurring, we push En Passant into MoveType array to keep track
         }
     }
 
@@ -545,37 +545,38 @@ export class ChessBoard {
 
     private storeMove(promotedPiece: FENChar | null): void {
         const { piece, currX, currY, prevX, prevY, moveType } = this._lastMove!;
-        let pieceName: string = !(piece instanceof Pawn) ? piece.FENChar.toUpperCase() : "";
-        let move: string;
+        let pieceName: string = !(piece instanceof Pawn) ? piece.FENChar.toUpperCase() : ""; // Recording the piece type (default as Pawn)
+        let move: string; // Initialized empty string for moves
 
-        if (moveType.has(MoveType.Castling))
-            move = currY - prevY === 2 ? "O-O" : "O-O-O";
+        if (moveType.has(MoveType.Castling)) // Using chess O and X notation for Castling and regular Capture
+            move = currY - prevY === 2 ? "O-O" : "O-O-O"; // We are checking for the SIDE of the BOARD in which the castling move is happening (left or right, by comparing Y values)
         else {
             move = pieceName + String(prevX + 1);
             if (moveType.has(MoveType.Capture))
-                move += (piece instanceof Pawn) ? columns[prevY] + "x" : "x";
+                move += (piece instanceof Pawn) ? columns[prevY] + "x" : "x"; // We are checking for if capture has happened and appending if true
             move += columns[currY] + String(currX + 1);
 
             if (promotedPiece)
-                move += "=" + promotedPiece.toUpperCase();
+                move += "=" + promotedPiece.toUpperCase(); // We are checking for if a promotion has happened and appending if true
         }
 
-        if (moveType.has(MoveType.Check)) move += "+";
-        else if (moveType.has(MoveType.CheckMate)) move += "#";
+        if (moveType.has(MoveType.Check)) move += "+"; // We are checking for if check has happened and appending if true
+        else if (moveType.has(MoveType.CheckMate)) move += "#"; // We are checking for if checkMATE has happened and appending if true
+
 
         if (!this._moveList[this.numberOfFullMoves - 1])
-            this._moveList[this.numberOfFullMoves - 1] = [move];
+            this._moveList[this.numberOfFullMoves - 1] = [move]; // Appending the moves for White Pieces
         else
-            this._moveList[this.numberOfFullMoves - 1].push(move);
+            this._moveList[this.numberOfFullMoves - 1].push(move); // Appending the moves for Pink Pieces
     }
 
     private updateGameHistory(): void {
-        this._gameHistory.push({
-            board: [... this.chessBoardView.map(row => [... row])],
+        this._gameHistory.push({ // Updating the _gameHistory property by appending the array
+            board: [... this.chessBoardView.map(row => [...row])], // Creating a deep copy of the chessBoardView property
             checkState: {
-                ... this._checkState
+                ... this._checkState // Creating a deep copy of the checkState property
             },
-            lastMove: this._lastMove ? {... this._lastMove} : undefined
-        })
+            lastMove: this._lastMove ? { ... this._lastMove } : undefined // Creating a deep copy of the _lastView property
+        });
     }
 }

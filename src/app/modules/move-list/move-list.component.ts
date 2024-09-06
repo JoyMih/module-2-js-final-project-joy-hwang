@@ -13,11 +13,14 @@ import { MoveList } from '../../chess-logic/models';
 })
 export class MoveListComponent {
   @Input({required: true}) public moveList! : MoveList;
-  // @Input({ required: true }) public gameHistoryPointer: number = 0;
-  // @Input({ required: true }) public gameHistoryLength: number = 1;
-  // @Output() public showPreviousPositionEvent = new EventEmitter<number>();
+  @Input({ required: true }) public gameHistoryPointer: number = 0;
+  @Input({ required: true }) public gameHistoryLength: number = 1;
 
-  // public showPreviousPosition(moveIndex: number): void {
-  //   this.showPreviousPositionEvent.emit(moveIndex);
-  // }
+  // The event emitter emits a new value after clicking a certain move in move list component. This emitter triggers a function that will show previous position.
+  @Output() public showPreviousPositionEvent = new EventEmitter<number>();
+
+  // The method that shows the previous positions
+  public showPreviousPosition(moveIndex: number): void {
+    this.showPreviousPositionEvent.emit(moveIndex);
+  }
 }

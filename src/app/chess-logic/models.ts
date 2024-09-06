@@ -45,6 +45,7 @@ export const pieceImagePaths: Readonly<Record<FENChar, string>> = {
 // This is the coordinate with which we check in chess-board.ts on whether or not pieces are safe
 export type SafeSquares = Map<string, Coords[]>;
 
+// Declaring enumeration for differing move types
 export enum MoveType {
     Capture,
     Castling,
@@ -78,8 +79,9 @@ export type CheckState = KingChecked | KingNotChecked;
 // An array of doubles: a string then an optional string
 export type MoveList = ([string, string?])[];
 
+// An array of objects
 export type GameHistory = {
     lastMove: LastMove | undefined;
     checkState: CheckState;
-    board: (FENChar | null)[][];
+    board: (FENChar | null)[][]; // Is a 2D matrix of FENCharacters or null elements
 }[];
