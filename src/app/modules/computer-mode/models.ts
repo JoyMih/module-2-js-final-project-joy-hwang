@@ -18,8 +18,8 @@ export type StockfishResponse = {
 
     // Added properties: evaluation, mate, bestMove, continuation
     evaluation: number | null;
-    mate: number | null;
     bestmove: string;
+    mate: number | null;
     continuation: string;
 }
 

@@ -103,7 +103,7 @@ export class ChessBoard {
     }
 
     public get isTheGameOver(): boolean {
-        return this.isTheGameOver;
+        return this._isTheGameOver; // Thanks to Christiano, we have figured out that we accidentally called the object instead of the private variable that we needed
     }
 
     public get gameOverMessage(): string | undefined {
@@ -372,7 +372,7 @@ export class ChessBoard {
         else { // If promotion does not happen, place piece at new x,y coordinates
             this.chessBoard[newX][newY] = piece;
         }
-        
+
         this.chessBoard[prevX][prevY] = null;
 
         this._lastMove = { prevX, prevY, currX: newX, currY: newY, piece, moveType };
@@ -439,11 +439,11 @@ export class ChessBoard {
 
     // Checking for if the game cannot proceed or is finished
     private isTheGameFinished(): boolean {
-        if (this.insufficientMatingMaterial()) {
+        if (this.insufficientMatingMaterial()) { //
             this._gameOverMessage = "Draw due to Insufficient Material Condition being reached.";
             return true;
         }
-        if (!this._safeSquares.size) {
+        if (!this._safeSquares.size) { //
             if (this._checkState.isInCheck) { // In the case of a checkmate
                 const prevPlayer: string = this._playerColor === Color.White ? "Pink" : "White";
                 this._gameOverMessage = prevPlayer + " Has won by checkmate.";
@@ -453,7 +453,7 @@ export class ChessBoard {
             return true;
         }
 
-        if (this.threeFoldRepetitionFlag) { // We update the message in the true condition
+        if (this.threeFoldRepetitionFlag) { // // We update the message in the true condition
             this._gameOverMessage = "Draw due to the Three Fold Repetition Rule";
             return true;
         }

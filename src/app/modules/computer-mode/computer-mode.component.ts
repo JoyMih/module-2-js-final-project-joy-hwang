@@ -29,11 +29,11 @@ export class ComputerModeComponent extends ChessBoardComponent implements OnInit
 
     const chessBoardStateSubscription$: Subscription = this.chessBoardService.chessBoardState$.subscribe({
       next: async (FEN: string) => { // Using async in conjunction with await
+        // console.log("test")
         if (this.chessBoard.isTheGameOver) {
           chessBoardStateSubscription$.unsubscribe(); // If the game is over, chessBoardState$ subscription is unsubscribed from
           return;
         }
-        
         const player: Color = FEN.split(" ")[1] === "w" ? Color.White : Color.Pink;
         if (player !== this.stockfishService.computerConfiguration$.value.color) return; 
         // If the player color is different from the computer configuration's value for color, we return from the function
