@@ -13,7 +13,9 @@
 
 .game-title{
     color: white;
-    padding-top: 0.5rem;
+    font-weight: 500;
+    font-size: 2rem;
+    padding: 0.5rem;
 }
 
 .chess-board {
@@ -22,7 +24,10 @@
     flex-direction: column-reverse;
     width: 475px;
     height: 475px;
-    /* margin-top: 2rem; */
+    /* background-color:#af7799; */
+    /* background-color:#a077af; */
+    background-color:#c09d3d;
+    border-radius: 5px;
 }
 
 .rotated {
@@ -43,12 +48,13 @@
     cursor: pointer;
     border: 1px solid pink;
     background-color: white;
+    border-radius: 5px;
 }
 
 
 .game-over-message {
     color: white;
-    margin-top: 100px;
+    margin-top: 10px;
 }
 
 .promotion-dialog {
@@ -57,7 +63,7 @@
     align-items: center;
     width: 300px;
     height: 100px;
-    margin-top: 100px;
+    margin-top: 10px;
 }
 
 .promotion-dialog img {
@@ -88,11 +94,20 @@
 .flip-button{
     display: flex;
     justify-content: center;
-    width: 380px;
     font-size: large;
     padding: 0.35em 0rem;
     width: 475px;
+    border-radius: 5px;
     background-color: rgb(255, 192, 218);
+    transition: ease-out 0.25s;
+}
+
+.flip-button:hover {
+    box-shadow: inset 475px 0 0 0 rgba(255, 107, 186, 0.918);
+}
+
+.flip-button:active {
+    background-color: rgba(255, 192, 218, 0.688);
 }
 
 .selected-square {

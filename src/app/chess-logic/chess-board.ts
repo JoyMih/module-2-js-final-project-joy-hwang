@@ -445,8 +445,8 @@ export class ChessBoard {
         }
         if (!this._safeSquares.size) { //
             if (this._checkState.isInCheck) { // In the case of a checkmate
-                const prevPlayer: string = this._playerColor === Color.White ? "Pink" : "White";
-                this._gameOverMessage = prevPlayer + " Has won by checkmate.";
+                const previousPlayer: string = this._playerColor === Color.White ? "Pink" : "White";
+                this._gameOverMessage = previousPlayer + " Has won by checkmate.";
             }
             else this._gameOverMessage = "Stalemate has been reached"; // In the case of a stalemate
 

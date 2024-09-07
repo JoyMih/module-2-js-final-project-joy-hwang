@@ -6,4 +6,9 @@
 .select-opponent-button {
     display: flex;
     width: 100%;
+    transition: 0.3s background-color;
+}
+
+.select-opponent-button:hover {
+    background-color: rgb(252, 222, 238);
 }
