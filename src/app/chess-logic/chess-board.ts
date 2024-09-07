@@ -103,7 +103,7 @@ export class ChessBoard {
     }
 
     public get isTheGameOver(): boolean {
-        return this._isTheGameOver; // Thanks to Christiano, we have figured out that we accidentally called the object instead of the private variable that we needed
+        return this._isTheGameOver; // Thanks to Christiano, we have figured out that we accidentally returned the method itself instead returning the private variable named similarly
     }
 
     public get gameOverMessage(): string | undefined {
