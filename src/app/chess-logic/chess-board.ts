@@ -324,15 +324,15 @@ export class ChessBoard {
 
         if (!(rook instanceof Rook) || rook.hasMoved || this._checkState.isInCheck) return false;
 
-        const firstNextKingPositionY: number = kingPositionY + (kingSideCastle ? 1 : -1);
-        const secondNextKingPositionY: number = kingPositionY + (kingSideCastle ? 2 : -2);
+        const firstNextKingPositionY: number = kingPositionY + (kingSideCastle ? 1 : -1); // King needs to pass this position
+        const secondNextKingPositionY: number = kingPositionY + (kingSideCastle ? 2 : -2); // King needs to cross this position too
 
-        if (this.chessBoard[kingPositionX][firstNextKingPositionY] || this.chessBoard[kingPositionX][secondNextKingPositionY]) return false;
+        if (this.chessBoard[kingPositionX][firstNextKingPositionY] || this.chessBoard[kingPositionX][secondNextKingPositionY]) return false; // Checking for if these squares contain pieces or are empty
 
-        if (!kingSideCastle && this.chessBoard[kingPositionX][1]) return false;
+        if (!kingSideCastle && this.chessBoard[kingPositionX][1]) return false; // For other side of the board castling check
 
         return this.isPositionSafeAfterMove(kingPositionX, kingPositionY, kingPositionX, firstNextKingPositionY) &&
-            this.isPositionSafeAfterMove(kingPositionX, kingPositionY, kingPositionX, secondNextKingPositionY);
+            this.isPositionSafeAfterMove(kingPositionX, kingPositionY, kingPositionX, secondNextKingPositionY); // Return the boolean for if that position is safe
     }
 
 
@@ -599,11 +599,11 @@ export class ChessBoard {
         const pieceRank = new Set(samePiecesCoordinates.map(coordinates => coordinates.x));
 
         // If true, this denotes that all of the pieces are of different files (a, b, c, d, ...), hence we return the columns of the previous y index
-        if (pieceFile.size === samePiecesCoordinates.length)
+        if (pieceFile.size === samePiecesCoordinates.length) // File = transverse axis
             return columns[prevY];
 
         // If true, this denotes that all of the pieces are of different ranks (1, 2, 3, 4, ...), hence we return the previous X position + 1
-        if (pieceRank.size === samePiecesCoordinates.length)
+        if (pieceRank.size === samePiecesCoordinates.length) // Rank = main axis
             return String(prevX + 1);
 
         // However, in the case that none of the above are true, we specify file and rank, denoting that 1 or more of these detected pieces share both rank and file (this is the formal notation that we shortened with the startingPieceCoordinatesNotation() function)
