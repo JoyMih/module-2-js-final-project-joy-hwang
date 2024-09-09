@@ -20,6 +20,7 @@
 
 .chess-board {
     display: flex;
+    position: relative;
     justify-content: center;
     flex-direction: column-reverse;
     width: 475px;
@@ -115,7 +116,8 @@
 }
 
 .safe-square {
-    position: relative;
+    position: absolute;
+    overflow-y: none;
     height: 20px;
     width: 20px;
     background-color: #bbb;
