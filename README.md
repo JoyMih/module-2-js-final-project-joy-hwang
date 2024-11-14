@@ -1,6 +1,7 @@
 # ChessGame
 
-An online playable chess game. This project is a learning exercise and is still in production.
+An online playable chess game. This project is a learning exercise and academic project, of which's objectives were to learn JavaScript.
+- The live netlify link: https://pink-chess-app.netlify.app 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.0.
 
 # General Links
